@@ -1,0 +1,15 @@
+:root {
+  --nextra-primary-hue: 221;
+  --nextra-primary-saturation: 83%;
+}
+
+/* Alineamos los colores primary de Nextra con el blue de Tailwind del Callout info */
+/* blue-100: rgb(219 234 254) | blue-800: rgb(30 64 175) | blue-900: rgb(30 58 138) */
+
+._bg-primary-100 {
+  background-color: rgb(219 234 254) !important; /* blue-100 */
+}
+
+._text-primary-800 {
+  color: rgb(30 58 138) !important; /* blue-800 */
+}
