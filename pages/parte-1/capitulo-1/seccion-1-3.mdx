@@ -1,7 +1,117 @@
 ---
-title: "1.3 — En construcción"
+title: "1.3 Casos de uso reales con ROI demostrado"
 ---
 
-# 1.3
+import { Callout } from 'nextra/components'
 
-> **En construcción.** Esta sección está siendo redactada.
+# 1.3 Casos de uso reales con ROI demostrado: clasificación, generación, extracción, asistentes
+
+Hay una diferencia enorme entre los casos de uso de IA que aparecen en los keynotes y los que realmente generan valor en una empresa. Los primeros son espectaculares y difíciles de medir. Los segundos son aburridos, repetibles y tienen un número en una celda de Excel que los justifica. Este libro se ocupa de los segundos.
+
+Existen cuatro categorías de casos de uso que concentran la mayor parte del ROI real en proyectos de IA enterprise: clasificación, generación, extracción y asistentes. No son los únicos posibles, pero son los que aparecen una y otra vez en implementaciones reales — y los que tienen mejor ratio entre resultado obtenido y complejidad de implementación.
+
+## Clasificación — el caso de uso más seguro
+
+Clasificar significa asignar una etiqueta predefinida a un texto de entrada. El modelo lee el texto y responde con una categoría. Es el caso de uso con el ROI más predecible y el más fácil de evaluar objetivamente.
+
+**Ejemplo real:** Una empresa recibe varios miles de correos diarios en su buzón de atención al cliente. Antes de la IA, un equipo los leía uno a uno y los asignaba manualmente al departamento correspondiente. Con una clasificación automática, el modelo lee el asunto y el cuerpo del correo y devuelve una categoría — `FACTURACION`, `SOPORTE_TECNICO`, `BAJA`, `RECLAMACION` — junto con un nivel de urgencia. El correo llega directamente a la cola correcta.
+
+El ROI es inmediato y medible: menos tiempo de triaje, menos errores de enrutamiento, SLA más cortos porque el ticket llega antes al especialista. En muchos casos el ahorro se mide en horas de trabajo al día.
+
+Lo que hace que la clasificación sea el punto de entrada ideal es que **el resultado es verificable**. Tienes etiquetas de referencia, puedes calcular precisión y recall, y puedes detectar exactamente cuándo y por qué el modelo se equivoca. No hay ambigüedad sobre si funciona o no.
+
+Otros ejemplos habituales:
+- Clasificación de tickets de soporte por tipo de incidencia y prioridad
+- Categorización de productos en un catálogo a partir de descripciones
+- Detección de intención en formularios de contacto
+- Moderación de contenido generado por usuarios
+
+## Generación — ahorro de tiempo cuantificable
+
+Generar significa producir texto a partir de un contexto dado. El modelo recibe información estructurada y produce un texto que un humano habría tardado minutos en escribir. No reemplaza al humano que revisa — al menos al principio — pero reduce drásticamente el tiempo que ese humano dedica a cada tarea.
+
+**Ejemplo real:** Un gestor de siniestros de una aseguradora debe redactar una carta de resolución para cada expediente. La carta tiene que incluir los hechos del siniestro, la decisión tomada y su justificación legal, en un lenguaje formal y coherente con casos anteriores. Antes, cada carta tardaba entre veinte y cuarenta minutos. Con IA, el sistema lee los datos del expediente del CRM y genera un borrador en segundos. El gestor revisa, ajusta si es necesario y envía. El tiempo baja a tres o cuatro minutos por carta.
+
+El ahorro en ese escenario no es difícil de calcular: si un gestor resuelve cincuenta expedientes al mes, el tiempo ahorrado en redacción se convierte en expedientes adicionales que puede atender, o en tiempo recuperado para tareas de mayor valor.
+
+<Callout type="info">
+  La generación raramente elimina al humano del proceso en una primera implementación enterprise — y eso está bien. El objetivo inicial es que el humano tarde mucho menos, no que desaparezca del flujo. La confianza en el sistema se construye con el tiempo y con datos de calidad sobre cuántas veces el borrador generado se envía tal cual.
+</Callout>
+
+Otros ejemplos habituales:
+- Resúmenes de reuniones a partir de transcripciones
+- Propuestas comerciales preliminares basadas en datos del CRM
+- Mensajes de estado en sistemas de seguimiento de pedidos
+- Respuestas de primer nivel en servicios de atención al cliente
+
+## Extracción — transformar texto en datos
+
+Extraer significa leer un documento en lenguaje natural y devolver datos estructurados. El modelo actúa como un parser inteligente que entiende contexto, maneja variaciones de formato y no se rompe cuando el documento no sigue exactamente la plantilla esperada.
+
+**Ejemplo real:** El departamento financiero recibe facturas en PDF de cientos de proveedores distintos. Cada uno tiene su propio formato: algunos ponen el importe arriba a la derecha, otros abajo a la izquierda, algunos incluyen impuestos desglosados, otros no. Un parser basado en reglas o en coordenadas de PDF fracasa con cualquier variación. El modelo lee el texto del PDF y devuelve un objeto estructurado con los campos relevantes:
+
+```json
+{
+  "proveedor": "Suministros García S.L.",
+  "numero_factura": "FAC-2024-00892",
+  "fecha_emision": "2024-11-15",
+  "base_imponible": 1240.00,
+  "iva": 260.40,
+  "total": 1500.40,
+  "concepto": "Material de oficina — pedido #4521"
+}
+```
+
+Si el modelo no encuentra un campo o no está seguro, puede devolver `null` en lugar de inventar un valor — siempre que el prompt esté bien diseñado. El sistema envía los casos con campos vacíos a revisión humana. El resultado es que el ochenta o el noventa por ciento de las facturas se procesan automáticamente, y solo las excepciones requieren intervención manual.
+
+Otros ejemplos habituales:
+- Extracción de cláusulas relevantes de contratos
+- Parsing de formularios escaneados con campos variables
+- Extracción de entidades de textos médicos o legales
+- Lectura de albaranes, pedidos o presupuestos en distintos formatos
+
+## Asistentes — el caso de uso más visible
+
+Un asistente es un sistema conversacional que responde preguntas usando información de tu empresa. Es el caso de uso más fácil de entender para negocio, el que más interés genera — y el que más fácil es hacer mal.
+
+**Ejemplo real:** Una empresa de logística tiene una base de documentación interna extensa: manuales de procedimientos, políticas de RRHH, guías de operación de flotas, normativa de seguridad. Cuando un empleado tiene una duda, llama al departamento correspondiente o busca en una intranet desordenada. Con un asistente RAG, el empleado escribe su pregunta en lenguaje natural y obtiene una respuesta concreta que cita el documento de origen. «¿Cuántos días de permiso por mudanza tengo?» devuelve la respuesta extraída del convenio colectivo aplicable, con el enlace al documento.
+
+El ROI en este caso no se mide en tiempo ahorrado por consulta — cada consulta sigue siendo rápida — sino en volumen. Si el departamento de RRHH recibe doscientas consultas al mes que podrían responderse con documentación existente, y el asistente resuelve el setenta por ciento de ellas sin intervención humana, el ahorro es significativo.
+
+<Callout type="warning">
+  El error más común al construir asistentes es asumir que el modelo sabe todo. Un asistente sin datos propios de la empresa solo puede responder sobre información pública que el modelo ya conoce. La parte difícil — y la que aporta valor real — es conectar el asistente con tus documentos, tu base de datos y tus sistemas. Esa arquitectura es RAG, y ocupa una parte importante de este libro.
+</Callout>
+
+Otros ejemplos habituales:
+- Asistente de soporte de primer nivel sobre documentación de producto
+- Chatbot de RRHH para preguntas sobre políticas y beneficios
+- Asistente de ventas que consulta catálogo y stock en tiempo real
+- Copilot interno que ayuda al equipo de desarrollo a navegar la arquitectura del sistema
+
+## La matriz de ROI y complejidad
+
+No todos los casos de uso tienen el mismo equilibrio entre el valor que generan y el esfuerzo que requieren. Esta tabla resume dónde se sitúan los cuatro grandes:
+
+| Caso de uso | ROI | Complejidad | Riesgo de error visible | Por dónde empezar |
+|---|---|---|---|---|
+| **Clasificación** | Alto | Baja | Bajo (verificable) | Primera semana |
+| **Extracción** | Alto | Baja-Media | Medio (dato incorrecto) | Primeras semanas |
+| **Generación** | Medio-Alto | Media | Medio (revisión humana) | Primer mes |
+| **Asistentes** | Alto (a escala) | Alta | Alto (alucinaciones visibles) | Con base sólida |
+
+La clasificación y la extracción son los mejores puntos de entrada: generan valor rápido, son fáciles de evaluar y el error, cuando ocurre, es fácil de detectar y corregir. La generación requiere más trabajo en el diseño del prompt y en la revisión humana inicial. Los asistentes son el caso de uso con mayor impacto percibido, pero también el que más infraestructura necesita — RAG, gestión de contexto, evaluación de calidad — para funcionar bien en producción.
+
+## El patrón que todos comparten
+
+Independientemente del caso de uso, la estructura de la solución es siempre la misma:
+
+1. **Contexto**: qué información relevante le das al modelo (el ticket, el PDF, la pregunta del usuario)
+2. **Instrucción**: qué le pides que haga con esa información (clasificar, extraer, redactar, responder)
+3. **Formato de salida**: cómo quieres que te devuelva el resultado (JSON, texto libre, un campo concreto)
+4. **Validación**: qué haces con la respuesta antes de usarla en tu sistema
+
+Esto se traduce directamente en código Spring AI que verás en los capítulos siguientes. Pero el diseño de ese código empieza aquí: sabiendo exactamente qué problema de negocio estás resolviendo y cómo vas a medir si lo estás resolviendo bien.
+
+<Callout>
+  El caso de uso correcto no es el más impresionante — es el que tiene el problema más claro, los datos más accesibles y el criterio de éxito más fácil de medir. Empieza ahí.
+</Callout>
