@@ -1,9 +1,9 @@
 export default {
   logo: <strong>IA Engineering con Spring AI</strong>,
   project: {
-    // link: 'https://github.com/tu-usuario/ia-engineering-spring-ai', // añade tu repo cuando lo tengas
+    link: 'https://github.com/eloisa-alesqui/ia-engineering-spring-ai',
   },
-  docsRepositoryBase: 'https://github.com/tu-usuario/ia-engineering-spring-ai/blob/main',
+  docsRepositoryBase: 'https://github.com/eloisa-alesqui/ia-engineering-spring-ai/blob/main',
   footer: {
     text: 'IA Engineering con Spring AI — Guía práctica para el desarrollador Java',
   },
