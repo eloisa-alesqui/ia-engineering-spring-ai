@@ -1,4 +1,4 @@
-{
+export default {
   "capitulo-21": "Cap. 21 — Buscador Semántico Corporativo",
   "capitulo-22": "Cap. 22 — Agente de Soporte",
   "capitulo-23": "Cap. 23 — Pipeline de Documentos Inteligente",

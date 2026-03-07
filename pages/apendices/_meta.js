@@ -1,4 +1,4 @@
-{
+export default {
   "apendice-a": "Apéndice A — Referencia Rápida Spring AI",
   "apendice-b": "Apéndice B — Entorno de Desarrollo",
   "apendice-c": "Apéndice C — Checklist de Producción",

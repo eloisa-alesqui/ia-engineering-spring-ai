@@ -1,4 +1,4 @@
-{
+export default {
   "capitulo-4": "Cap. 4 — Spring AI: del @RestController al LLM",
   "capitulo-5": "Cap. 5 — Embeddings y Modelos Vectoriales",
   "capitulo-6": "Cap. 6 — Vector Stores"

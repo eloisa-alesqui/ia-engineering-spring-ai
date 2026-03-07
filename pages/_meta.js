@@ -1,4 +1,4 @@
-{
+export default {
   "index": "Inicio",
   "parte-1": "Parte I — El Nuevo Escenario",
   "parte-2": "Parte II — Spring AI",

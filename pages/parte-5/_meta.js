@@ -1,4 +1,4 @@
-{
+export default {
   "capitulo-16": "Cap. 16 — Estrategia de Adopción",
   "capitulo-17": "Cap. 17 — Patrones Arquitectónicos",
   "capitulo-18": "Cap. 18 — Testing de Aplicaciones con IA",

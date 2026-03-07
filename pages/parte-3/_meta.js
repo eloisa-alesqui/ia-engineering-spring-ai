@@ -1,4 +1,4 @@
-{
+export default {
   "capitulo-7": "Cap. 7 — RAG Fundamental",
   "capitulo-8": "Cap. 8 — RAG Avanzado",
   "capitulo-9": "Cap. 9 — CAG y Fine-Tuning",

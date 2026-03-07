@@ -1,4 +1,4 @@
-{
+export default {
   "capitulo-12": "Cap. 12 — Function Calling",
   "capitulo-13": "Cap. 13 — Diseño de Agentes",
   "capitulo-14": "Cap. 14 — MCP: Model Context Protocol",

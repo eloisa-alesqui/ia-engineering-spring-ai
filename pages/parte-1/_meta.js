@@ -1,4 +1,4 @@
-{
+export default {
   "capitulo-1": "Cap. 1 — La IA como Capacidad de Negocio",
   "capitulo-2": "Cap. 2 — Anatomía de los LLMs",
   "capitulo-3": "Cap. 3 — Prompt Engineering"
