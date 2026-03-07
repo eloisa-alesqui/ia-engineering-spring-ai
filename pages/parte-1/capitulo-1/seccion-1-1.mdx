@@ -1,0 +1,84 @@
+---
+title: "1.1 Qué significa realmente «añadir IA» a una aplicación enterprise"
+---
+
+import { Callout } from 'nextra/components'
+
+# 1.1 Qué significa realmente «añadir IA» a una aplicación enterprise
+
+Cuando alguien dice «hay que añadir IA a la aplicación», la imagen que suele aparecer es la de modelos entrenando durante días, matemáticas complejas y un stack tecnológico completamente distinto al tuyo. Es normal que surja la pregunta: ¿esto es para mí?
+
+La respuesta es sí. Y la realidad es mucho más cercana a lo que ya haces cada día.
+
+## Lo que «añadir IA» significa en la práctica
+
+En el 95% de los casos enterprise, «añadir IA» significa exactamente esto:
+
+1. **Envías texto** a una API externa (o a un modelo desplegado en tu infraestructura)
+2. **El modelo procesa** ese texto y devuelve una respuesta
+3. **Tu código** interpreta esa respuesta y actúa en consecuencia
+
+Nada más. No entrenas modelos, no tocas pesos neurales, no necesitas una GPU. Llamas a una API REST igual que llamas a cualquier otro servicio externo que ya consumes hoy.
+
+```
+POST https://api.openai.com/v1/chat/completions
+Authorization: Bearer {tu-api-key}
+
+{
+  "model": "gpt-4",
+  "messages": [
+    { "role": "user", "content": "Clasifica este ticket de soporte: ..." }
+  ]
+}
+```
+
+La respuesta es JSON. La parseas, extraes el campo que necesitas y lo usas en tu lógica de negocio. Si has consumido alguna vez la API de Stripe, de Twilio o de Google Maps, el patrón te resultará completamente familiar. A lo largo del libro veremos cómo Spring AI abstrae esta llamada para que no tengas que lidiar con los detalles de cada proveedor — pero el concepto subyacente es siempre este.
+
+## El espectro de funcionalidades de IA
+
+No toda la IA es igual. Existe un espectro de complejidad creciente, y la mayoría de proyectos enterprise empiezan — y terminan — en los primeros niveles:
+
+| Nivel | Qué hace | Ejemplo real |
+|---|---|---|
+| **Generación** | El modelo produce texto a partir de un input | Generar el borrador de un email de respuesta al cliente |
+| **Clasificación** | El modelo asigna una categoría a un input | Clasificar tickets de soporte por tipo y urgencia |
+| **Extracción** | El modelo extrae datos estructurados de texto libre | Extraer importe, fecha y proveedor de una factura en PDF |
+| **Búsqueda semántica** | Buscar por significado, no por palabras exactas | «Busca la política de devoluciones» encuentra el documento aunque no use esas palabras |
+| **RAG** | El modelo responde usando tus documentos privados | Un asistente que responde sobre tu base de conocimiento interna |
+| **Agentes** | El modelo decide qué acciones ejecutar en tu sistema | Un agente que consulta pedidos, modifica reservas y escala a un humano si no puede resolver |
+
+La clave es que **cada nivel construye sobre el anterior** y todos se implementan con el mismo patrón básico: texto de entrada → modelo → texto de salida → lógica de negocio.
+
+## El modelo no es tu aplicación
+
+Uno de los errores conceptuales más comunes al empezar es pensar que el modelo de IA es el núcleo de la nueva funcionalidad. No lo es.
+
+El modelo es una **pieza de infraestructura** — sofisticada, pero infraestructura al fin. Como una base de datos o un broker de mensajes: tú no escribes la base de datos, la configuras y la usas. Con un LLM ocurre lo mismo.
+
+<Callout type="warning">
+  El valor diferencial está en **cómo integras el modelo** con tu lógica de negocio, tus datos y tus procesos — no en el modelo en sí. Dos empresas pueden usar el mismo modelo GPT-4 y obtener resultados radicalmente distintos dependiendo de cómo lo hayan integrado.
+</Callout>
+
+Tu responsabilidad como AI Engineer es exactamente esa integración: qué contexto le das al modelo, cómo interpretas su respuesta, qué haces cuando falla, cómo lo monitoreas y cómo controlas el coste. Todo eso es código Java que ya sabes escribir.
+
+## Las restricciones enterprise que nadie menciona
+
+Los tutoriales de IA suelen ignorar las restricciones reales de un entorno enterprise. Antes de añadir cualquier funcionalidad de IA, tu aplicación tiene que poder responder estas preguntas:
+
+- **Latencia**: ¿puede el usuario esperar 3-5 segundos? ¿O necesitas streaming para dar sensación de respuesta inmediata?
+- **Coste**: ¿cuántas llamadas al modelo vas a hacer? ¿A qué precio por token? ¿Cómo evitas que un bug dispare la factura?
+- **Privacidad**: ¿los datos que envías al modelo pueden salir de tu infraestructura? ¿Hay datos personales, secretos comerciales o información regulada?
+- **Fiabilidad**: ¿qué pasa cuando el proveedor del modelo tiene una caída? ¿Tienes fallback?
+- **Determinismo**: ¿la respuesta del modelo tiene que ser siempre la misma para la misma entrada? ¿O la variabilidad es aceptable?
+
+Estas preguntas no las resuelve el modelo — las resuelve tu arquitectura. Y si llevas un tiempo desarrollando con Spring, ya tienes las herramientas conceptuales para responderlas: sabes lo que es un timeout, un retry, un log estructurado. Eso es exactamente lo que se necesita aquí.
+
+## Un nuevo tipo de dependencia externa
+
+La mejor forma de entender qué significa integrar un LLM en tu aplicación es tratarlo como tratas cualquier otra dependencia externa crítica: con resiliencia, con observabilidad y con criterio.
+
+No integrarías una pasarela de pago sin circuit breaker, sin logging de cada transacción, sin alertas si la tasa de error sube. Un LLM merece exactamente el mismo rigor — y Spring AI, junto con el ecosistema Spring que ya conoces, te da todas las herramientas para aplicarlo.
+
+<Callout>
+  «Añadir IA» no es un proyecto de investigación. Es ingeniería de integración — y eso es exactamente lo que llevas años haciendo.
+</Callout>
