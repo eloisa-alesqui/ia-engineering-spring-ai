@@ -2,19 +2,53 @@
 title: IA Engineering con Spring AI
 ---
 
+import { Cards, Callout } from 'nextra/components'
+
 # IA Engineering con Spring AI
 
 **Guía práctica para el desarrollador Java que necesita integrar IA en producción.**
 
 Este no es un libro sobre IA teórica. Es un libro para el desarrollador Java/Spring que el lunes tiene que añadir funcionalidades de IA a la aplicación que ya mantiene. Cada capítulo incluye diagramas de arquitectura, criterios de decisión y código real con Spring AI que puedes copiar, adaptar y desplegar.
 
-> Si ya sabes hacer un `@RestController`, sabes lo suficiente para empezar.
+<Callout type="info" emoji="→">
+  Si ya sabes hacer un `@RestController`, sabes lo suficiente para empezar.
+</Callout>
 
 ---
 
-import { Cards } from 'nextra/components'
+## Para quién es este libro
 
-## Contenido
+Este libro es para ti si:
+
+- Eres desarrollador **Java/Spring** con experiencia y quieres incorporar IA a tu trabajo diario
+- Te han pedido añadir funcionalidades de IA a una aplicación existente y no sabes por dónde empezar
+- Has visto tutoriales de Python/LangChain pero necesitas soluciones **en tu stack**
+- Quieres entender qué es RAG, qué son los agentes y qué es MCP sin que te expliquen matemáticas
+- Buscas criterios de decisión reales: cuándo usar IA, qué modelo elegir, cuándo es sobreingeniería
+
+Este libro **no** es para ti si buscas entrenar modelos, hacer fine-tuning avanzado o trabajar en investigación de IA.
+
+---
+
+## Qué vas a aprender
+
+A lo largo de seis partes construirás una base sólida para integrar IA en proyectos enterprise reales:
+
+**Fundamentos prácticos** — Entenderás cómo funcionan los LLMs sin bajar a las matemáticas, cómo elegir entre modelos propietarios y open source, y cómo diseñar prompts como artefactos de software versionables y testeables.
+
+**Spring AI de arriba abajo** — Dominarás el framework que hace de puente entre tu código Java y cualquier proveedor de IA: configuración de proveedores, streaming, structured output, memoria conversacional y gestión de errores.
+
+**RAG en todas sus variantes** — Desde el pipeline básico hasta técnicas avanzadas de producción: query rewriting, búsqueda híbrida, re-ranking, Agentic RAG y Graph RAG. Con criterios claros para saber cuándo cada variante tiene sentido.
+
+**Agentes y MCP** — Aprenderás a construir agentes que razonan y actúan sobre tus sistemas existentes, y a integrar el Model Context Protocol (MCP), el estándar emergente que está redefiniendo cómo los agentes se comunican con herramientas.
+
+**Integración enterprise** — Patrones arquitectónicos para añadir IA a aplicaciones existentes, estrategia de testing para sistemas no deterministas, seguridad, GDPR, observabilidad y optimización de costes en producción.
+
+**Proyectos completos** — Cuatro proyectos de referencia con código real: un buscador semántico corporativo, un agente de soporte, un pipeline de procesamiento de documentos y un sistema Agentic RAG multi-fuente.
+
+---
+
+## Cómo está organizado
 
 <Cards>
   <Cards.Card title="Parte I — El Nuevo Escenario" href="/parte-1/capitulo-1" arrow />
@@ -24,3 +58,21 @@ import { Cards } from 'nextra/components'
   <Cards.Card title="Parte V — Integración Enterprise" href="/parte-5/capitulo-16" arrow />
   <Cards.Card title="Parte VI — Proyectos Completos" href="/parte-6/capitulo-21" arrow />
 </Cards>
+
+---
+
+## Cómo leerlo
+
+Puedes seguirlo de principio a fin — cada parte construye sobre la anterior — o ir directamente a lo que necesitas ahora:
+
+- **Necesito añadir búsqueda inteligente** → Parte III (RAG) y Proyecto 1
+- **Necesito un chatbot sobre mis datos** → Parte II + Parte III + Proyecto 2
+- **Necesito un agente que opere sobre mi sistema** → Parte IV y Proyecto 2
+- **Necesito convencer a mi empresa** → Capítulo 1 y Parte V
+- **Tengo que desplegar esto en producción** → Capítulo 20 y Apéndice C
+
+---
+
+## El código
+
+Todo el código de los capítulos y proyectos está disponible en el repositorio de GitHub. Cada ejemplo es funcional, autocontenido y pensado para copiar, adaptar y ejecutar — no para ilustrar conceptos en el vacío.
