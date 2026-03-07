@@ -1,0 +1,5 @@
+node_modules/
+.next/
+.DS_Store
+*.docx
+indice_ia_engineering_spring_ai.md
