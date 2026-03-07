@@ -1,7 +1,65 @@
 ---
-title: "1.2 — En construcción"
+title: "1.2 El rol del AI Engineer en una empresa"
 ---
 
-# 1.2
+import { Callout } from 'nextra/components'
 
-> **En construcción.** Esta sección está siendo redactada.
+# 1.2 El rol del AI Engineer en una empresa: no eres un data scientist
+
+Uno de los mayores frenos para que un desarrollador Java dé el salto a la IA es la confusión de roles. Existe la idea de que para trabajar con IA en una empresa necesitas ser data scientist, dominar estadística avanzada o tener un doctorado en Machine Learning. No es así — y entender la diferencia entre roles te va a ahorrar mucha frustración.
+
+## Tres roles distintos, tres trabajos distintos
+
+En el ecosistema de IA hay al menos tres perfiles claramente diferenciados:
+
+**El Data Scientist** investiga, experimenta y construye modelos. Su trabajo es entender los datos, seleccionar algoritmos, entrenar modelos y evaluar su rendimiento estadístico. Trabaja principalmente con Python, Jupyter notebooks y frameworks como PyTorch o scikit-learn. Su output habitual es un modelo entrenado o un análisis.
+
+**El ML Engineer** lleva ese modelo a producción. Se ocupa de la infraestructura de entrenamiento, el versionado de modelos, los pipelines de datos y el despliegue en plataformas como Kubernetes o SageMaker. Es el puente entre el laboratorio y el sistema productivo.
+
+**El AI Engineer** integra capacidades de IA — generalmente modelos ya entrenados y disponibles como servicio — en aplicaciones de negocio. Su trabajo es construir los sistemas que usan la IA, no la IA en sí. Trabaja con APIs, frameworks de integración, bases de datos vectoriales y la lógica de negocio de la empresa.
+
+<Callout type="info">
+  Si vienes del desarrollo Java/Spring, tu perfil natural es el del **AI Engineer**. No necesitas convertirte en Data Scientist ni en ML Engineer para aportar valor real con IA en tu empresa.
+</Callout>
+
+## Qué hace un AI Engineer en el día a día
+
+El trabajo concreto de un AI Engineer en un entorno enterprise gira en torno a estas responsabilidades:
+
+- **Diseñar e implementar pipelines de IA**: desde la ingesta de datos hasta la respuesta al usuario, pasando por la recuperación de contexto y la llamada al modelo.
+- **Integrar modelos con sistemas existentes**: conectar el LLM con bases de datos, APIs internas, sistemas de autenticación y lógica de negocio ya existente.
+- **Construir y mantener sistemas RAG**: diseñar cómo se indexan los documentos de la empresa, cómo se recupera el contexto relevante y cómo se evalúa la calidad de las respuestas.
+- **Desarrollar agentes**: definir qué herramientas tiene el agente, cómo interactúa con otros sistemas y qué límites de seguridad tiene.
+- **Gestionar la operación en producción**: monitorizar el coste por petición, la latencia, la tasa de error y la calidad de las respuestas a lo largo del tiempo.
+- **Colaborar con negocio**: traducir requisitos de negocio en casos de uso de IA concretos y viables.
+
+Para que esto no se quede en abstracto, imagina este escenario real: tu empresa quiere un asistente interno que responda preguntas sobre su base documental — políticas, manuales técnicos, procedimientos de RRHH. Tú eres quien tiene que decidir si tiene sentido usar RAG o si el volumen de documentos es tan pequeño que cabe en el contexto del modelo directamente. Eres quien diseña cómo se procesan los PDFs, cómo se trocean en fragmentos útiles y cómo se indexan. Eres quien define qué pasa cuando el modelo devuelve una respuesta que no está respaldada por ningún documento — las llamadas alucinaciones — y cómo se lo comunicas al usuario. Y eres quien lo despliega, lo monitoriza y lo mantiene cuando los documentos se actualizan.
+
+Nada de eso requiere saber entrenar un modelo. Todo requiere saber construir software robusto — que es exactamente lo que ya sabes hacer.
+
+## Lo que sí necesitas saber (y lo que no)
+
+Es útil ser explícito sobre qué conocimientos son necesarios y cuáles no:
+
+| Necesitas saber | No necesitas saber |
+|---|---|
+| Cómo funcionan los LLMs a nivel conceptual | Cómo se entrenan los LLMs |
+| Qué son los embeddings y para qué sirven | Cómo se calculan los gradientes |
+| Cómo diseñar prompts efectivos | Álgebra lineal o cálculo diferencial |
+| Cómo evaluar la calidad de las respuestas | Estadística bayesiana |
+| Cómo construir pipelines RAG | Frameworks de entrenamiento como PyTorch |
+| Cómo operar y monitorizar sistemas de IA | Optimización de hiperparámetros |
+
+La columna de la izquierda es lo que cubre este libro. La columna de la derecha es el territorio del Data Scientist y del ML Engineer.
+
+## Tu ventaja como desarrollador Java
+
+Venir del mundo Java enterprise no es una limitación — es una ventaja que a menudo se infravalora.
+
+Los sistemas de IA en producción necesitan exactamente lo que un desarrollador con experiencia en Spring ya sabe construir: gestión de errores robusta, resiliencia ante fallos externos, observabilidad, seguridad y capacidad para integrarse con sistemas existentes. Un prototipo de IA que funciona en local es relativamente fácil de hacer. Un sistema de IA que funciona en producción, con múltiples usuarios, SLAs exigentes y datos sensibles, es otro nivel — y ahí es donde tu experiencia aporta valor real.
+
+Pero hay una segunda dimensión igual de importante: el AI Engineer actúa como **traductor entre el negocio y la tecnología**. El negocio tiene problemas reales — procesos lentos, información dispersa, tareas repetitivas — pero no siempre sabe qué puede y qué no puede hacer la IA. Tú eres quien cierra ese gap: entiendes suficiente de IA para saber qué es viable, y suficiente de sistemas para saber cómo construirlo de forma que funcione de verdad. Esa combinación — criterio técnico más comprensión del negocio — es difícil de encontrar y muy fácil de subestimar.
+
+<Callout>
+  La IA sin ingeniería sólida es un prototipo. La ingeniería sólida con IA es un producto.
+</Callout>
