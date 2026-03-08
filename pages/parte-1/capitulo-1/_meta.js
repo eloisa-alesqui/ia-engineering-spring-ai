@@ -6,4 +6,6 @@ export default {
   "seccion-1-4": "1.4 Mapa de madurez de IA",
   "seccion-1-5": "1.5 Criterios de decisión",
   "seccion-1-6": "1.6 El coste real",
+  "resumen": "Resumen del capítulo",
+  "quiz": "Pon a prueba lo aprendido",
 }
