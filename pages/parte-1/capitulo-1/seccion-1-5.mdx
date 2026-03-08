@@ -1,7 +1,79 @@
 ---
-title: "1.5 — En construcción"
+title: "1.5 Criterios de decisión: cuándo tiene sentido usar IA y cuándo no"
 ---
 
-# 1.5
+import { Callout } from 'nextra/components'
 
-> **En construcción.** Esta sección está siendo redactada.
+# 1.5 Criterios de decisión: cuándo tiene sentido usar IA y cuándo no
+
+La pregunta más importante antes de escribir una sola línea de código no es cómo integrar la IA — es si tiene sentido integrarla. La presión para «añadir IA» a todo es real, y viene de todas las direcciones: negocio, dirección, competidores. Tiene incluso nombre: solucionismo tecnológico, la tendencia a aplicar la tecnología más nueva a todos los problemas independientemente de si es la herramienta adecuada. Con la IA generativa, ese sesgo está en su punto álgido. Pero aplicar IA donde no corresponde no solo es un desperdicio de tiempo y dinero — es un sistema más frágil, más caro y más difícil de mantener que la alternativa aburrida que ya existía.
+
+Esta sección te da los criterios concretos para tomar esa decisión con criterio técnico, no con entusiasmo.
+
+## La pregunta previa: ¿resuelve esto una regla determinista?
+
+Antes de evaluar si usar IA, hazte esta pregunta: ¿puede un humano escribir una regla explícita que resuelva el problema de forma fiable?
+
+Si la respuesta es sí — si puedes expresar la solución como un conjunto de condiciones, un regex, una consulta SQL o un algoritmo — probablemente no necesitas IA. No porque la IA no pueda resolverlo, sino porque la regla determinista es más rápida, más barata, más predecible y más fácil de auditar.
+
+Un ejemplo: si quieres clasificar si un pedido supera los 1.000€ para aplicar un descuento especial, no necesitas un LLM. Necesitas un `if`. Si quieres clasificar si un correo de un cliente expresa frustración con el servicio, ahí la regla determinista empieza a fallar — y la IA empieza a tener sentido.
+
+## Cuándo tiene sentido usar IA
+
+Hay cinco condiciones que, cuando se cumplen, indican que la IA es probablemente la herramienta adecuada:
+
+**1. El input es texto no estructurado o tiene alta variabilidad**
+
+Si el problema implica procesar lenguaje natural — correos, comentarios, documentos, transcripciones — y las entradas tienen suficiente variación como para que las reglas explícitas sean frágiles o incompletas, la IA es una buena candidata. El modelo maneja la variabilidad de forma natural.
+
+**2. La tarea requiere comprensión semántica, no coincidencia de patrones**
+
+«Busca todas las quejas sobre retrasos en la entrega» parece sencillo, pero las personas expresan la misma queja de mil formas distintas. Un regex o una búsqueda por palabras clave captura algunas; un modelo de lenguaje entiende el significado y captura todas.
+
+**3. La escala hace inviable la intervención humana**
+
+Si tienes diez correos al día, una persona puede procesarlos. Si tienes diez mil, necesitas automatización. Y si la automatización basada en reglas no es suficientemente precisa, la IA es el siguiente paso natural.
+
+**4. Una respuesta «suficientemente buena» es aceptable**
+
+Los LLMs no son perfectos — cometen errores. Si el proceso puede tolerar un margen de error razonable (que un clasificador se equivoque en el 5% de los casos, que un borrador generado necesite revisión antes de enviarse), la IA encaja bien. Si necesitas precisión del 100% sin excepción, hay que pensarlo más.
+
+**5. El coste por operación está justificado por el valor generado**
+
+Cada llamada al modelo tiene un coste en tokens y en latencia. Si procesar un documento de texto con IA ahorra quince minutos de trabajo manual, el coste de unos céntimos por llamada es completamente razonable. Si lo que hace el modelo equivale a tres segundos de trabajo que ya automatizaba una regla existente, el coste no está justificado.
+
+## Cuándo no tiene sentido usar IA
+
+Igual de importante es saber cuándo no usarla:
+
+| Señal | Por qué es un problema |
+|---|---|
+| Una regla determinista lo resuelve igual de bien | Más complejidad, más coste, menos fiabilidad, sin beneficio |
+| Se requiere precisión del 100% sin tolerancia al error | Los LLMs no garantizan determinismo |
+| La decisión debe ser completamente auditable y explicable | «El modelo lo dijo» no es una justificación legal o regulatoria |
+| La latencia requerida es inferior a lo que el modelo puede entregar | Las llamadas a LLMs toman segundos, no milisegundos |
+| No tienes forma de evaluar si el resultado es correcto | Sin criterio de calidad, no puedes saber si el sistema funciona |
+| El volumen es tan bajo que el esfuerzo de integración no compensa | Si son diez documentos al mes, procésalos manualmente |
+
+<Callout type="warning">
+  La peor razón para usar IA en un proyecto es que «parece más moderno» o que «la competencia lo está haciendo». Esas razones generan proyectos que se abandonan a los tres meses porque nadie puede demostrar que funcionan.
+</Callout>
+
+## El checklist de decisión
+
+Antes de comprometerte a integrar IA en un caso de uso, recorre esta lista:
+
+- [ ] He verificado que una regla determinista no resuelve esto suficientemente bien
+- [ ] El input tiene variabilidad suficiente para que la IA aporte ventaja real sobre las reglas
+- [ ] Tengo un criterio claro de qué significa «funcionar bien» y puedo medirlo
+- [ ] La precisión requerida es compatible con el margen de error que tienen los LLMs
+- [ ] No hay requisitos legales o regulatorios que exijan explicabilidad total de cada decisión
+- [ ] La latencia que introduce la llamada al modelo es aceptable para la experiencia de usuario
+- [ ] El coste estimado por operación es razonable dado el valor que genera
+- [ ] Hay suficiente volumen para que la automatización tenga sentido
+
+Si respondes «no» a más de dos de estos puntos, merece la pena reconsiderar antes de avanzar.
+
+<Callout>
+  El ingeniero más valioso no es el que sabe usar IA en todo — es el que sabe cuándo no usarla.
+</Callout>
