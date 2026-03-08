@@ -1,7 +1,92 @@
 ---
-title: "1.6 — En construcción"
+title: "1.6 El coste real: tokens, latencia, infraestructura y mantenimiento"
 ---
 
-# 1.6
+import { Callout } from 'nextra/components'
 
-> **En construcción.** Esta sección está siendo redactada.
+# 1.6 El coste real: tokens, latencia, infraestructura y mantenimiento
+
+Cuando alguien calcula el coste de añadir IA a una aplicación, suele mirar el precio por token del proveedor y hacer una multiplicación rápida. Ese número es real, pero es solo una parte de la historia. El coste total de un sistema de IA en producción tiene cuatro dimensiones distintas, y subestimar cualquiera de ellas es una de las formas más comunes de que un proyecto se convierta en un problema financiero inesperado.
+
+## Tokens: el coste que sí ves en la factura
+
+Un token es aproximadamente tres cuartos de una palabra en inglés — algo menos en español, dado que las palabras tienden a ser más largas. Los modelos cobran por tokens de entrada (el texto que envías) y por tokens de salida (el texto que generan). Los de salida suelen costar más.
+
+El coste por token parece pequeño en abstracto, pero los números escalan rápido. En lugar de dar cifras concretas que quedarán obsoletas en meses — los precios de los LLMs bajan constantemente — lo que merece la pena interiorizar es cómo hacer el cálculo:
+
+```
+coste_mensual = (tokens_entrada × precio_entrada + tokens_salida × precio_salida)
+                × operaciones_día × 30
+```
+
+Con esa fórmula y los precios actuales del proveedor, la estimación es inmediata. El orden de magnitud resultante orienta bien las decisiones:
+
+| Escenario | Tokens entrada | Tokens salida | Ops/día | Orden de magnitud |
+|---|---|---|---|---|
+| Clasificar un ticket corto | ~400 | ~100 | 1.000 | decenas de € |
+| Resumir un documento de 5 páginas | ~3.500 | ~500 | 500 | cientos de € |
+| Responder en un asistente RAG | ~5.500 | ~500 | 2.000 | miles de € |
+| Procesar facturas en lote | ~1.800 | ~200 | 5.000 | cientos/miles de € |
+
+Para los precios actuales por modelo y proveedor, consulta directamente las páginas oficiales de pricing — OpenAI, Anthropic, Google y los demás los actualizan con frecuencia. Lo que no cambia es la estructura del cálculo ni el hecho de que entrada y salida se facturan por separado, a precios distintos.
+
+Hay tres factores que inflan el consumo de tokens más de lo que se anticipa:
+
+<Callout type="info">
+  El **system prompt** es el bloque de instrucciones fijas que define cómo debe comportarse el modelo — su rol, su tono, sus restricciones. Se envía en cada llamada, antes del mensaje del usuario. Lo veremos en profundidad en el capítulo 3.
+</Callout>
+
+**El system prompt se paga en cada llamada.** Si tu system prompt tiene 800 tokens y haces 10.000 llamadas al día, estás pagando 8 millones de tokens solo en instrucciones fijas que se repiten constantemente. Optimizar el system prompt no es solo cuestión de claridad — es economía.
+
+**El contexto conversacional crece con cada turno.** En un asistente con historial de conversación, cada mensaje nuevo incluye todos los mensajes anteriores. Una conversación de diez turnos puede consumir diez veces más tokens que una de un solo turno.
+
+**RAG añade tokens de contexto.** Cada fragmento de documento que recuperas y añades al prompt tiene un coste. Recuperar cinco fragmentos de 500 tokens cada uno añade 2.500 tokens a cada llamada.
+
+## Latencia: el coste que paga el usuario
+
+Los LLMs son lentos comparados con cualquier otra dependencia de tu aplicación. Una llamada a una base de datos dura milisegundos. Una llamada a un LLM puede durar entre uno y diez segundos dependiendo del modelo, el tamaño de la respuesta y la carga del proveedor en ese momento.
+
+Esa diferencia de escala tiene implicaciones de diseño concretas que conviene anticipar:
+
+- **Si el usuario espera una respuesta en pantalla**, cinco segundos es demasiado. La solución estándar es el streaming: enviar la respuesta token a token mientras el modelo la genera, en lugar de esperar a tenerla completa. El usuario ve texto aparecer de inmediato y la espera se vuelve tolerable. Lo veremos en detalle cuando lleguemos a Spring AI.
+- **Si el sistema procesa documentos en segundo plano** — facturas, contratos, transcripciones — la latencia individual importa menos, pero sí importa el throughput: cuántos documentos puedes procesar en paralelo antes de que la cola se acumule.
+- **Si tu flujo encadena varias llamadas al modelo** — una para clasificar, otra para extraer, otra para generar el borrador — la latencia se multiplica. Es uno de los errores de diseño más caros en sistemas de IA: lo que parecen cuatro llamadas rápidas se convierte en ocho segundos de espera para el usuario.
+
+## Infraestructura: el coste que no aparece en la factura del modelo
+
+La factura del proveedor de modelos es visible. Los costes de infraestructura adicionales que introduce la IA son más silenciosos:
+
+**Vector store**: si implementas RAG necesitas almacenamiento vectorial. pgvector sobre PostgreSQL puede ser gratuito si ya tienes la base de datos, pero Pinecone, Weaviate o Milvus gestionados tienen sus propios costes. Además, generar y almacenar los embeddings de tus documentos tiene un coste propio, aunque menor.
+
+**Procesamiento de documentos**: si ingestas PDFs, Word o imágenes escaneadas, necesitas capacidad de procesamiento. Los documentos con imágenes o tablas complejas pueden requerir modelos multimodales o servicios de OCR, que tienen su propio pricing.
+
+**Modelos locales**: si optas por Ollama u otro sistema de inferencia local para cumplir requisitos de privacidad, el coste se traslada a GPU — ya sea en tu infraestructura cloud o en hardware propio. Una GPU A10G en AWS cuesta varios euros por hora.
+
+**Caché**: implementar caché semántica para evitar llamadas redundantes al modelo requiere infraestructura adicional — Redis, por ejemplo — pero puede reducir el consumo de tokens de forma significativa en casos de uso con patrones repetitivos.
+
+## Mantenimiento: el coste que nadie presupuesta
+
+El coste de mantenimiento de un sistema de IA tiene características propias que lo distinguen del mantenimiento de software tradicional:
+
+**Los prompts se degradan.** Cuando el proveedor actualiza el modelo, el comportamiento puede cambiar aunque el código no haya cambiado. Un prompt que funcionaba perfectamente con GPT-4 puede dar resultados distintos con la siguiente versión del mismo modelo. Necesitas tests de regresión sobre los prompts y un proceso para detectar cuando la calidad baja.
+
+**Los datos cambian.** En sistemas RAG, los documentos se actualizan, se eliminan o quedan obsoletos. Si no tienes un proceso de actualización del índice vectorial, tus usuarios empiezan a recibir respuestas basadas en información desactualizada — y puede pasar semanas antes de que alguien lo note.
+
+**La evaluación es continua.** A diferencia de un bug clásico que o está o no está, la calidad de un sistema de IA puede degradarse de forma gradual y difusa. Requiere monitorización activa: muestras de respuestas revisadas periódicamente, métricas de satisfacción de usuario, alertas cuando la distribución de respuestas cambia de forma anómala.
+
+**El conocimiento puede concentrarse.** Los sistemas de IA tienen tendencia a quedar en manos de quien los construyó: son nuevos, hay pocas personas con experiencia en el equipo y la documentación suele quedar pendiente. Si el conocimiento sobre cómo funciona el sistema acaba siendo de una sola persona, cualquier cambio — una actualización del modelo, un nuevo tipo de documento, una queja de usuario — depende de esa persona. El coste de esa dependencia no aparece en ninguna factura hasta que esa persona no está disponible.
+
+## Una estimación antes de comprometerse
+
+Antes de presentar un caso de negocio para implementar IA, vale la pena construir una estimación de coste total que incluya las cuatro dimensiones:
+
+1. **Tokens**: estimación de tokens por operación × volumen previsto × precio actual del modelo
+2. **Infraestructura adicional**: vector store, procesamiento de documentos, caché
+3. **Tiempo de desarrollo y puesta en producción**: no es gratuito aunque no aparezca en la factura del proveedor
+4. **Mantenimiento mensual estimado**: tiempo dedicado a monitorización, actualización de prompts y gestión de datos
+
+Esa estimación no tiene que ser perfecta — las variables cambian. Pero hacerla obliga a pensar en el sistema completo, no solo en la demo que funciona en local.
+
+<Callout>
+  El coste de un sistema de IA no es el precio por token — es el precio por token más todo lo demás. Quien solo mira la factura del modelo se lleva sorpresas.
+</Callout>
