@@ -1,7 +1,99 @@
 ---
-title: "1.4 — En construcción"
+title: "1.4 Mapa de madurez de IA en una organización"
 ---
 
-# 1.4
+import { Callout } from 'nextra/components'
 
-> **En construcción.** Esta sección está siendo redactada.
+# 1.4 Mapa de madurez de IA en una organización: de la PoC a producción
+
+La mayoría de las iniciativas de IA en empresas siguen el mismo patrón: empiezan con un prototipo emocionante, generan mucho entusiasmo interno, y luego se quedan atascadas en algún punto del camino hacia producción. El prototipo funciona en local, pero el salto a un sistema real, mantenible y confiable nunca llega a completarse.
+
+Entender en qué punto está tu organización — y qué necesita para avanzar — es tan importante como saber escribir el código.
+
+## Los cinco niveles de madurez
+
+No existe una única forma de medir la madurez de IA en una empresa, pero hay un patrón que se repite con suficiente consistencia como para servir de referencia:
+
+| Nivel | Nombre | Qué tiene la organización |
+|---|---|---|
+| **0** | Sin IA | Ninguna iniciativa en marcha. La IA es un tema de conversación, no de inversión. |
+| **1** | Experimentación | Una o varias PoC en desarrollo. Hay interés, pero nada en producción. |
+| **2** | Primera producción | Al menos un caso de uso en producción, aunque sea pequeño. Existe infraestructura mínima. |
+| **3** | Escala controlada | Varios casos de uso en producción. Hay procesos repetibles, observabilidad y costes bajo control. |
+| **4** | IA como capacidad estándar | La IA es una herramienta más en el catálogo de ingeniería. Los equipos la adoptan sin fricción. |
+
+La mayor parte de las empresas que empiezan a invertir en IA hoy están en el nivel 1 o en la transición entre el 1 y el 2. El salto más difícil — y el más valioso — es del 1 al 2.
+
+## Nivel 1: La trampa de la PoC
+
+Una PoC de IA es engañosamente fácil de hacer. Con una API key, un notebook de Python o un proyecto Spring Boot básico y unas horas, tienes algo que impresiona en una demo. El problema es que una PoC no resuelve ninguno de los problemas que hacen difícil la IA en producción:
+
+- No tiene gestión de errores ni fallbacks
+- No tiene observabilidad: no sabes cuántos tokens consume, ni cuándo falla, ni por qué
+- No tiene control de costes: un bug puede vaciar tu crédito en minutos
+- No está integrada con los sistemas reales de la empresa
+- No tiene tests, así que cualquier cambio puede romperla sin que nadie lo note
+- Usa datos de ejemplo, no los datos reales con toda su variabilidad y sus casos borde
+
+El síntoma más claro del nivel 1 es este: hay demos que funcionan, pero nadie se atreve a ponerlas delante de usuarios reales de forma sostenida.
+
+<Callout type="warning">
+  El error más caro en proyectos de IA enterprise es invertir meses en refinar una PoC en lugar de convertir una PoC básica en un sistema productivo mínimo. Una PoC perfecta sigue siendo una PoC.
+</Callout>
+
+## El salto crítico: del 1 al 2
+
+Llevar el primer caso de uso a producción — aunque sea pequeño, aunque no tenga todas las funcionalidades previstas — es el avance más importante que puede hacer una organización en su madurez de IA. No porque ese primer sistema vaya a ser perfecto, sino porque obliga a resolver los problemas reales:
+
+**Infraestructura mínima:**
+- Gestión segura de API keys y secretos (no en el código fuente)
+- Logging de cada llamada al modelo con suficiente contexto para depurar
+- Timeouts y reintentos configurados
+
+**Operación básica:**
+- Alguien responsable de monitorizar el coste mensual
+- Un canal para reportar cuando el sistema se comporta de forma inesperada
+- Un proceso para actualizar prompts cuando dejan de funcionar bien
+
+**Evaluación:**
+- Criterio claro de qué significa «funcionar bien» para ese caso de uso concreto
+- Aunque sea un humano revisando una muestra de las respuestas cada semana
+
+No hace falta resolver todo esto a la perfección para llegar al nivel 2. Hace falta resolverlo lo suficiente para que el sistema pueda estar activo de forma continua sin que alguien tenga que supervisarlo manualmente todo el tiempo.
+
+## Nivel 2 a 3: los procesos que escalan
+
+Una vez que hay algo en producción, el siguiente reto es que funcione de forma repetible — que el equipo pueda añadir un segundo caso de uso sin empezar desde cero, y un tercero sin reinventar la rueda de nuevo.
+
+Los elementos que distinguen a una organización en nivel 3 son principalmente de proceso, no de tecnología:
+
+- **Reutilización de infraestructura**: la conexión con el proveedor del modelo, el sistema de logging y el control de costes están disponibles para cualquier nuevo proyecto, no se reconstruyen cada vez.
+- **Versionado de prompts**: los prompts se tratan como código — están en el repositorio, tienen historial, se revisan en pull requests y se despliegan de forma controlada.
+- **Evaluación sistemática**: existe una forma estándar de medir si un cambio en el prompt o en el modelo mejora o empeora la calidad de las respuestas.
+- **Conocimiento compartido**: más de una persona en la empresa sabe cómo funciona el sistema y puede mantenerlo.
+
+El último punto es más importante de lo que parece. Un sistema que solo sabe mantener la persona que lo construyó no es un activo de la empresa — es una deuda técnica con fecha de vencimiento desconocida.
+
+## Nivel 3 a 4: IA como capacidad estándar
+
+En el nivel 4, un equipo de desarrollo puede incorporar IA a su aplicación con la misma naturalidad con la que incorpora cualquier otra librería o servicio. No necesita un proyecto especial, ni convencer a arquitectura de que es seguro, ni esperar a que alguien del equipo de IA tenga disponibilidad.
+
+Llegar aquí requiere que la organización haya resuelto:
+- **Gobernanza**: qué datos pueden enviarse a qué modelos, bajo qué condiciones y con qué controles
+- **Economía**: cómo se asignan y controlan los costes de IA por equipo o proyecto
+- **Estándares**: patrones de integración aprobados, librerías internas, guías de buenas prácticas
+- **Cultura**: los ingenieros consideran la IA una herramienta más en su caja, no una especialidad ajena
+
+Este nivel no es el objetivo inicial de la mayoría de organizaciones — es el resultado de haber hecho bien los niveles anteriores durante suficiente tiempo.
+
+## Dónde sitúa tu organización este libro
+
+Este libro está diseñado para llevar a equipos del nivel 1 al nivel 2 — y después al 3. El código, los patrones y las decisiones de arquitectura que encontrarás en los capítulos siguientes están orientados a construir sistemas que puedan vivir en producción, no prototipos que impresionen en una demo.
+
+Si tu organización ya está en el nivel 2 o 3, encontrarás en la Parte III y la Parte IV el material para aumentar la sofisticación de lo que ya tienes — RAG avanzado, agentes, sistemas multi-fuente. Si estás en el nivel 1, el camino más directo es empezar por el caso de uso más simple que genera valor real, llevarlo a producción con las garantías mínimas necesarias, y construir desde ahí.
+
+El nivel 4 queda fuera del alcance de este libro de forma deliberada. Llegar a él no depende principalmente de escribir mejor código — depende de decisiones organizativas que van más allá de la ingeniería: construir una plataforma interna que haga la adopción trivial para cualquier equipo, definir estructuras de gobernanza sobre qué datos pueden ir a qué modelos y bajo qué condiciones, establecer modelos de FinOps para asignar y controlar los costes de IA por equipo o proyecto, y crear comunidades internas de práctica que extiendan el conocimiento más allá del equipo que construyó el primer sistema. Son decisiones de tech lead, de arquitecto y de dirección de ingeniería — no de desarrollador individual. El desarrollador que domine el contenido de este libro estará en una posición excelente para influir en esas decisiones, pero tomarlas es trabajo de otro libro.
+
+<Callout>
+  El objetivo no es tener la arquitectura de IA más avanzada — es tener algo funcionando en producción la semana que viene, y algo mejor funcionando el mes que viene.
+</Callout>
