@@ -1,0 +1,68 @@
+---
+title: "2.1 Qué necesitas saber de un LLM (sin bajar a las matemáticas)"
+---
+
+import { Callout } from 'nextra/components'
+
+# 2.1 Qué necesitas saber de un LLM (sin bajar a las matemáticas)
+
+Para programar en Java no necesitas saber cómo funciona la JVM por dentro. Para usar un broker de mensajes no necesitas entender los algoritmos de consenso distribuido. Para usar un LLM tampoco necesitas entender la matemática de las redes neuronales.
+
+Pero sí necesitas entender qué hace el modelo, cuáles son sus límites y por qué se comporta como se comporta — porque eso determina directamente cómo tienes que diseñar el sistema que lo usa.
+
+## Lo que hace un LLM: predecir lo que viene después
+
+En esencia, un modelo de lenguaje hace una sola cosa: dado un texto de entrada, predice cuál es el texto más probable que debería venir a continuación. Eso es todo. No razona, no busca en internet, no consulta una base de datos. Lee lo que le has dado y genera una continuación probable.
+
+Si le das el texto «La capital de Francia es», el modelo predice «París» porque en los millones de textos con los que fue entrenado, esa es la continuación más frecuente de esa frase. Si le das un ticket de soporte y le pides que lo clasifique, genera la categoría más probable dado ese ticket y las instrucciones que le has proporcionado.
+
+Esta idea — que todo lo que hace el modelo es predecir continuaciones probables — tiene implicaciones importantes que veremos a lo largo del capítulo. La más inmediata: el modelo no «sabe» cosas en el sentido en que tú sabes cosas. Tiene patrones estadísticos extraídos de texto.
+
+## Cómo aprende: el entrenamiento
+
+Un LLM aprende leyendo cantidades masivas de texto — artículos, libros, código, conversaciones, páginas web. Durante el entrenamiento, el modelo ajusta sus parámetros internos para volverse cada vez mejor prediciendo la siguiente palabra dado un contexto previo. Este proceso, llamado preentrenamiento, puede durar semanas y requiere miles de GPUs.
+
+El resultado es un modelo base que ha absorbido patrones del lenguaje humano a una escala que ningún humano puede igualar. Pero un modelo base no es directamente útil para una aplicación: responde de formas impredecibles, puede generar contenido inapropiado y no sigue instrucciones de forma consistente.
+
+Por eso los modelos que consumes como API — GPT-4o, Claude, Gemini — no son modelos base puros. Han pasado por una fase adicional llamada **fine-tuning de instrucciones**, que los entrena específicamente para seguir instrucciones, mantener un tono útil y evitar respuestas problemáticas. Es lo que transforma un modelo base en un asistente que puedes integrar en una aplicación.
+
+<Callout type="info">
+  El fine-tuning también puede usarse para especializar un modelo en un dominio concreto — terminología médica, lenguaje legal, código en un framework específico. Cuándo tiene sentido hacerlo, y por qué casi nunca es la primera respuesta en proyectos enterprise, lo veremos en el capítulo 9.
+</Callout>
+
+## El conocimiento tiene fecha de caducidad
+
+El modelo aprende del texto disponible hasta una fecha concreta — la llamada **fecha de corte de conocimiento**. Todo lo que ocurrió después de esa fecha es invisible para el modelo. Si le preguntas por un evento reciente, una versión nueva de una librería o un cambio regulatorio del año pasado, o no sabe responder o — peor — inventa una respuesta que suena plausible pero es incorrecta.
+
+Esto tiene una consecuencia directa para el diseño de tu sistema: **no puedes confiar en el modelo como fuente de información actualizada**. Si necesitas que el modelo trabaje con información reciente o específica de tu empresa, tienes que dársela tú explícitamente en el contexto de la llamada. Esa es exactamente la función de RAG, que veremos en la Parte III.
+
+## Lo que el modelo no hace
+
+Vale la pena ser explícito sobre los límites, porque la forma en que los modelos se expresan puede crear la impresión de que hacen cosas que no hacen:
+
+**No razona de forma fiable.** Los modelos pueden seguir cadenas de razonamiento y resolver problemas complejos, pero también cometen errores lógicos con una confianza que no tiene en cuenta su propia incertidumbre. No hay ningún proceso de verificación interno que detecte cuándo el razonamiento es incorrecto.
+
+**No saben cuándo no saben.** Un modelo que no tiene información sobre algo tiene tendencia a generarla de todas formas, produciendo respuestas que suenan correctas pero son falsas. Esto se llama alucinación, y es uno de los riesgos fundamentales que hay que gestionar en cualquier sistema de IA.
+
+**No tienen memoria entre llamadas.** Cada llamada al modelo es independiente. El modelo no recuerda la conversación anterior a menos que se la incluyas explícitamente en el contexto de la nueva llamada. Si tu aplicación necesita historial conversacional, eres tú quien tiene que gestionarlo.
+
+**No ejecutan código ni acceden a sistemas externos por sí solos.** El modelo solo genera texto. Si quieres que consulte una base de datos, llame a una API o ejecute una acción en tu sistema, necesitas infraestructura adicional — function calling y agentes, que veremos en la Parte IV.
+
+<Callout type="warning">
+  La alucinación no es un bug que se va a corregir en la próxima versión del modelo — es una consecuencia estructural de cómo funcionan. Diseñar sistemas que la gestionen es parte del trabajo del AI Engineer.
+</Callout>
+
+## Lo que sí puedes esperar
+
+Con todo lo anterior, podría parecer que los LLMs son frágiles. No lo son — son extraordinariamente capaces dentro de sus límites. Lo que sí puedes esperar con alta fiabilidad:
+
+- **Comprensión de lenguaje natural**: entiende instrucciones complejas, matices, contexto implícito y variaciones de expresión con una robustez que ningún sistema basado en reglas puede igualar.
+- **Generación de texto coherente y bien estructurado**: produce texto que sigue un estilo, un formato y unas instrucciones con consistencia.
+- **Extracción e interpretación**: identifica información relevante en texto no estructurado, incluso cuando está expresada de formas variadas o ambiguas.
+- **Clasificación semántica**: asigna categorías basándose en el significado, no en la coincidencia de palabras clave.
+
+La clave para construir sistemas de IA fiables es exactamente esta: aprovechar lo que los modelos hacen bien, compensar con arquitectura lo que no hacen bien, y no pedirles lo que no pueden dar.
+
+<Callout>
+  Un LLM no es un oráculo ni una base de datos. Es un motor de generación de texto extremadamente capaz — úsalo para lo que es, no para lo que parece.
+</Callout>
