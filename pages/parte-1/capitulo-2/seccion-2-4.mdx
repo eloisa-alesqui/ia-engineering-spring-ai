@@ -1,7 +1,72 @@
 ---
-title: "2.4 — En construcción"
+title: "2.4 Modelos propietarios vs. open source"
 ---
 
-# 2.4
+import { Callout } from 'nextra/components'
 
-> **En construcción.** Esta sección está siendo redactada.
+# 2.4 Modelos propietarios vs. open source: GPT, Claude, Llama, Mistral, Gemini
+
+Cuando eliges un modelo para tu sistema, la primera bifurcación no es qué modelo usar — es de qué tipo. Hay dos formas fundamentales de acceder a un LLM: llamar a la API de un proveedor, o descargar los pesos del modelo y ejecutarlo tú. Cada opción tiene implicaciones que van mucho más allá del precio por token.
+
+## Modelos propietarios: la API como contrato
+
+Los modelos propietarios son los que ofrece un proveedor como servicio. No tienes acceso a los pesos del modelo — los archivos que contienen todo lo que aprendió durante el entrenamiento — solo a una API. A marzo de 2026, los tres grandes son:
+
+- **OpenAI** (familia GPT-5): el más usado, con la mayor cobertura de integraciones y herramientas del ecosistema.
+- **Anthropic** (Claude Opus 4.6 / Sonnet 4.6): especialmente valorado por sus capacidades de razonamiento y por el seguimiento de instrucciones de sistema complejas.
+- **Google** (Gemini 3.1 Pro): fuerte integración con el ecosistema Google Cloud y ventanas de contexto muy grandes.
+
+Lo que tienen en común:
+
+- Acceso inmediato sin infraestructura propia. Haces una llamada HTTP y tienes respuesta.
+- El proveedor gestiona el modelo, las actualizaciones y la disponibilidad.
+- Pagas por uso — por tokens consumidos, no por capacidad reservada.
+- **Tus datos viajan a los servidores del proveedor.** Esta es la implicación que más peso tiene en proyectos enterprise con datos sensibles.
+
+## Modelos open source: el modelo en tu infraestructura
+
+Los modelos open source publican sus pesos para que cualquiera los descargue y ejecute. A marzo de 2026, los referentes son:
+
+- **Meta** (familia Llama 4, incluyendo Scout y Maverick): los más descargados del mundo, con versiones para distintos niveles de hardware.
+- **Mistral AI** (Mistral Large 2 y otros): empresa europea con modelos eficientes y, en algunos casos, licencias muy permisivas.
+
+Lo que cambia respecto a los propietarios:
+
+- **Tus datos no salen de tu infraestructura.** Puedes ejecutar el modelo en tus propios servidores o en tu nube privada.
+- Tienes control total sobre versiones, configuración y comportamiento del modelo.
+- El coste de operación no depende del volumen de llamadas — depende de la infraestructura que uses.
+- La responsabilidad de disponibilidad, actualizaciones y seguridad es tuya.
+
+<Callout type="warning">
+  «Open source» no siempre significa lo mismo. Las licencias varían significativamente y algunas tienen restricciones relevantes para enterprise. La licencia de Llama 4, por ejemplo, prohíbe su uso a empresas con más de 700 millones de usuarios activos mensuales, y requiere que productos derivados incluyan «Built with Llama» en su nombre. Mistral publica algunos modelos bajo Apache 2.0 — licencia muy permisiva — y otros bajo licencias propietarias. Antes de comprometerte con un modelo open source en producción, lee la licencia.
+</Callout>
+
+## La brecha de calidad se ha cerrado — pero no ha desaparecido
+
+Durante años, elegir open source significaba aceptar una pérdida de calidad considerable respecto a los modelos propietarios. Eso ha cambiado. A marzo de 2026, modelos como Llama 4 Maverick son competitivos con los mejores propietarios en tareas bien definidas: clasificación, extracción, resumen, generación de código con contexto claro.
+
+La brecha persiste en dos áreas:
+
+- **Razonamiento complejo y multistep**: los modelos propietarios de última generación siguen llevando ventaja en tareas que requieren encadenar varios pasos de razonamiento con pocos errores.
+- **Fiabilidad en tareas abiertas**: cuando la tarea no está bien delimitada o el prompt es ambiguo, los modelos propietarios tienden a degradarse de forma más controlada.
+
+Para la mayoría de casos de uso enterprise — tareas concretas, prompts estructurados, dominios acotados — la diferencia de calidad ya no es el argumento decisivo. Lo que decide hoy es el coste, la privacidad y el control.
+
+## Comparativa por dimensiones
+
+| Dimensión | Propietario | Open source |
+|---|---|---|
+| Calidad en tareas complejas | Alta, especialmente en razonamiento | Competitiva en tareas bien definidas |
+| Tiempo hasta primera llamada | Minutos (registro + API key) | Horas o días (descarga, infraestructura) |
+| Coste | Por token consumido | Por infraestructura (fijo o variable) |
+| Privacidad de datos | Datos viajan al proveedor | Datos en tu infraestructura |
+| Control sobre el modelo | Ninguno | Total |
+| Compliance / GDPR | Depende del DPA con el proveedor | Más fácil de controlar |
+| Mantenimiento | A cargo del proveedor | A cargo de tu equipo |
+| Personalización (fine-tuning) | Depende del proveedor: OpenAI sí por API, Anthropic solo en planes enterprise | Total |
+
+Vale la pena decirlo explícitamente: esta elección no es permanente ni excluyente. Muchos sistemas en producción combinan ambos enfoques — modelos propietarios para tareas críticas o complejas, open source para tareas de alto volumen o con datos sensibles. No tienes que elegir uno para siempre. Los criterios concretos de selección los vemos en 2.5; la decisión cloud vs. local, en 2.6.
+
+<Callout>
+  El modelo propietario te da velocidad y calidad sin infraestructura. El open source te da control y privacidad sin dependencia de terceros. Ninguno es universalmente mejor — el contexto de tu proyecto decide.
+</Callout>
