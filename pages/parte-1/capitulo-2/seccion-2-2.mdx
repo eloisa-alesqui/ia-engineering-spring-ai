@@ -1,7 +1,77 @@
 ---
-title: "2.2 — En construcción"
+title: "2.2 Tokens, contexto y ventana de contexto"
 ---
 
-# 2.2
+import { Callout } from 'nextra/components'
 
-> **En construcción.** Esta sección está siendo redactada.
+# 2.2 Tokens, contexto, ventana de contexto y por qué el tamaño importa en RAG
+
+En el capítulo anterior vimos que los modelos cobran por tokens y que el historial conversacional hace crecer el consumo. Pero ¿qué es exactamente un token? ¿Y qué es la ventana de contexto? Son dos conceptos que aparecen en casi todas las decisiones de diseño de un sistema de IA, y vale la pena entenderlos bien.
+
+## Qué es un token
+
+Un token no es una palabra ni un carácter — es algo intermedio. Los modelos de lenguaje no procesan texto carácter a carácter ni palabra a palabra: lo dividen en fragmentos llamados tokens, que pueden ser una palabra completa, parte de una palabra o un signo de puntuación.
+
+Algunos ejemplos concretos:
+- «casa» → 1 token
+- «ChatGPT» → 2-3 tokens
+- «supercalifragilístico» → varios tokens
+- «.» → 1 token
+- «\n» (salto de línea) → 1 token
+
+Como regla práctica, **1.000 tokens equivalen aproximadamente a 750 palabras en inglés**. En español los textos consumen algo más de tokens porque las palabras tienden a ser más largas y el vocabulario del tokenizador está mayoritariamente optimizado para el inglés. Un texto en español del mismo contenido puede consumir entre un 10% y un 20% más de tokens que su equivalente en inglés.
+
+Esto tiene una implicación directa: cuando estimes el consumo de tokens de tu sistema, prueba siempre con texto real en el idioma que vas a usar, no con estimaciones teóricas.
+
+## La ventana de contexto: la memoria de trabajo del modelo
+
+La ventana de contexto es el límite máximo de tokens que el modelo puede procesar en una sola llamada. Todo lo que el modelo «ve» en esa llamada — el system prompt, el historial de la conversación, los documentos que le pasas, el mensaje del usuario y la respuesta que genera — tiene que caber dentro de ese límite.
+
+Una forma útil de pensarlo: la ventana de contexto es la mesa de trabajo del modelo. Solo puede trabajar con lo que tiene encima de la mesa. Lo que no cabe en la mesa, no existe para él.
+
+Los modelos actuales tienen ventanas de contexto muy distintas. La tabla siguiente refleja el estado a marzo de 2026 — estos números cambian con cada nueva versión, así que tómala como referencia de orden de magnitud y consulta siempre la documentación oficial antes de tomar decisiones de arquitectura:
+
+| Modelo | Ventana de contexto |
+|---|---|
+| Llama 4 Scout (Meta, open source) | ~10.000.000 tokens |
+| GPT-5.4 (OpenAI) | ~1.050.000 tokens |
+| Gemini 3.1 Pro (Google) | ~1.000.000 tokens |
+| Llama 4 Maverick (Meta, open source) | ~1.000.000 tokens |
+| GPT-5.2 (OpenAI) | ~400.000 tokens |
+| Claude Opus 4.6 / Sonnet 4.6 (Anthropic) | 200.000 tokens (1M en beta) |
+| Mistral Large 2 | ~128.000 tokens |
+
+Lo que sí es estable independientemente de los números concretos: los modelos de última generación tienen ventanas enormes, y la tendencia es claramente al alza. La gestión del contexto sigue importando — por coste y por calidad — aunque la restricción sea menos severa que hace dos años.
+
+<Callout type="warning">
+  Una ventana de contexto grande no significa que puedas ignorar la gestión del contexto. Los modelos tienden a perder atención en la información situada en el centro de contextos muy largos — el llamado efecto «lost in the middle», documentado por Liu et al. en 2023, que mostraba caídas de precisión significativas para información ubicada en el centro frente al principio o el final del contexto. Los modelos más recientes han mejorado este comportamiento, pero el efecto no ha desaparecido del todo. Y cada token adicional tiene un coste. Ventana grande no es sinónimo de ventana ilimitada.
+</Callout>
+
+## Qué ocupa espacio en el contexto
+
+Es fácil subestimar cuánto espacio consume el contexto si solo piensas en el mensaje del usuario. En una llamada real, el contexto incluye todo esto:
+
+```
+[System prompt]         ← se paga en cada llamada
+[Historial de mensajes] ← crece con cada turno
+[Documentos recuperados]← en sistemas RAG
+[Mensaje del usuario]
+────────────────────────
+[Respuesta del modelo]  ← también consume tokens (de salida)
+```
+
+Si tu system prompt tiene 500 tokens, el historial acumula 3.000, los documentos recuperados suman 4.000 y el mensaje del usuario añade 200, ya has consumido 7.700 tokens antes de que el modelo genere una sola palabra de respuesta. Con los modelos actuales y sus ventanas de 128K o más, ese consumo no supone un problema inmediato — pero en una conversación larga, con muchos documentos recuperados y un system prompt extenso, los números escalan rápido y conviene tenerlos controlados desde el principio.
+
+## Por qué el tamaño importa especialmente en RAG
+
+RAG — del que hablaremos extensamente en la Parte III — funciona recuperando fragmentos de tus documentos e insertándolos en el contexto de la llamada para que el modelo pueda usarlos al responder. Cuanto más pequeña es la ventana de contexto, menos fragmentos puedes incluir, y menos información tiene el modelo disponible para construir su respuesta.
+
+Imagina que tienes un manual técnico de 500 páginas indexado. Para responder una pregunta del usuario, el sistema recupera los fragmentos más relevantes — pongamos veinte fragmentos de 500 tokens cada uno, 10.000 tokens en total. Si además tienes un system prompt de 1.000 tokens, un historial de conversación de 5.000 y el mensaje del usuario de 200, ya has consumido 16.200 tokens antes de que el modelo genere una sola palabra. Con un modelo de 128.000 tokens hay margen de sobra. Pero si la conversación lleva muchos turnos, los documentos son extensos o el sistema recupera muchos fragmentos para mejorar la precisión, los números escalan y empiezan a importar.
+
+Ahora imagina que la pregunta requiere información dispersa en cien fragmentos distintos del manual — algo perfectamente posible en documentación técnica compleja. Incluso con una ventana de 128.000 tokens, meter cien fragmentos de 500 tokens (50.000 tokens solo en contexto documental, casi el 40% de esa ventana) junto con el resto del contexto empieza a ser costoso y activa el efecto «lost in the middle». Aquí es donde la estrategia de recuperación — qué fragmentos incluir y cuáles descartar — marca la diferencia entre un sistema RAG bueno y uno que simplemente tiene acceso a muchos documentos.
+
+Este es uno de los criterios más concretos para elegir modelo en un sistema RAG: **la ventana de contexto determina cuánto contexto puedes darle al modelo para que responda bien**.
+
+<Callout>
+  El token es la unidad de todo en los LLMs: de lo que procesan, de lo que cobran y de los límites que imponen. Entender cuántos tokens consume tu sistema es la base de cualquier decisión de diseño sensata.
+</Callout>
