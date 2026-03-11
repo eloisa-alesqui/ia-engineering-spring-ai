@@ -1,7 +1,64 @@
 ---
-title: "2.3 — En construcción"
+title: "2.3 Temperatura y top-p: los parámetros que controlas"
 ---
 
-# 2.3
+import { Callout } from 'nextra/components'
 
-> **En construcción.** Esta sección está siendo redactada.
+# 2.3 Temperatura y top-p: los parámetros que controlas
+
+Cuando llamas a un LLM, hay decenas de parámetros internos que no puedes tocar. Pero hay dos que sí controlas directamente en casi todas las APIs: la **temperatura** y el **top-p**. Entender qué hacen — y cuándo ajustar cada uno — es la diferencia entre un sistema que se comporta de forma predecible y uno que te da sorpresas en producción.
+
+## Temperatura: cuánto se arriesga el modelo al elegir
+
+Cuando el modelo genera texto, en cada paso elige el siguiente token entre miles de candidatos posibles. La temperatura controla cuánto peso da a las opciones menos probables en esa elección.
+
+- **Temperatura baja (0–0.3)**: el modelo casi siempre elige la opción más probable. Las respuestas son consistentes, repetibles y poco sorprendentes.
+- **Temperatura alta (0.7–1.0)**: el modelo considera opciones menos obvias con más frecuencia. Las respuestas son más variadas, más creativas — y más impredecibles.
+
+Una forma de pensarlo: temperatura baja es el modelo en modo «respuesta oficial»; temperatura alta es el modelo en modo «lluvia de ideas».
+
+### El caso concreto
+
+Imagina que estás clasificando tickets de soporte en categorías: *facturación*, *incidencia técnica*, *baja*, *consulta comercial*. Con temperatura 0.1, el modelo elige la categoría más probable de forma consistente. Ejecuta la misma llamada cien veces con el mismo ticket y obtienes prácticamente siempre la misma respuesta. Eso es lo que quieres en producción.
+
+Ahora imagina que usas el mismo modelo para generar diez variantes de un asunto de email para una campaña de marketing. Con temperatura 0.1 obtienes diez asuntos muy parecidos entre sí — el modelo no se atreve a salir del camino trillado. Con temperatura 0.8 obtienes variedad real.
+
+<Callout type="warning">
+  Temperatura 0 no es sinónimo de determinismo absoluto. Las operaciones en paralelo sobre GPU introducen pequeñas variaciones de coma flotante que pueden alterar el resultado en casos límite. En la práctica es casi determinista, pero si tu sistema necesita reproducibilidad estricta — auditoría, testing, compliance — no asumas que siempre obtendrás exactamente la misma respuesta. Algunos proveedores ofrecen un parámetro `seed` para mejorar la reproducibilidad: con el mismo seed y temperatura 0, el modelo tiende a devolver siempre la misma salida. OpenAI lo soporta en sus APIs; en modelos open source el soporte depende del servidor de inferencia.
+</Callout>
+
+## Top-p: acotar el conjunto de candidatos
+
+Top-p — también llamado *nucleus sampling* — es un mecanismo diferente para controlar la variabilidad. En lugar de cambiar el peso de todas las opciones como hace la temperatura, top-p directamente elimina del sorteo los candidatos menos probables.
+
+Con top-p = 0.9, el modelo ordena todos los candidatos de más a menos probable y se queda solo con los primeros — los que juntos suman el 90% de la probabilidad total. El resto queda descartado.
+
+El efecto práctico es similar al de la temperatura: valores bajos dan respuestas más conservadoras; valores altos, más variadas. La diferencia está en el mecanismo: top-p filtra candidatos en función del contexto de cada momento, mientras que la temperatura ajusta el peso de todos los candidatos por igual.
+
+## Cómo se combinan — y por qué normalmente solo tocas uno
+
+Muchas APIs permiten ajustar ambos parámetros a la vez, pero los proveedores recomiendan generalmente modificar solo uno de los dos. Ajustar temperatura y top-p simultáneamente tiene efectos difíciles de predecir y raramente aporta más control que ajustar solo uno.
+
+La convención más extendida:
+- Si trabajas con **OpenAI** (GPT-5.x): ajusta temperatura, deja top-p en 1.
+- Si trabajas con **Anthropic** (Claude Opus 4.6 / Sonnet 4.6): ajusta temperatura, deja top-p en su valor por defecto.
+- Si trabajas con **modelos open source** vía Ollama o equivalentes: la convención es la misma, aunque los rangos pueden variar según el modelo.
+
+Existe un tercer parámetro, **top-k**, que acota el número absoluto de tokens candidatos en lugar de usar masa de probabilidad. Lo encontrarás en algunos modelos open source y en la API de Gemini, pero raramente necesita ajuste — los valores por defecto son sensatos y top-p lo supera en flexibilidad en la mayoría de los casos.
+
+## Guía rápida por tipo de tarea
+
+| Tipo de tarea | Temperatura recomendada | Razonamiento |
+|---|---|---|
+| Clasificación, extracción de datos | 0.0 – 0.2 | Máxima consistencia. La respuesta correcta es única. |
+| Respuesta a preguntas sobre documentos | 0.1 – 0.3 | La respuesta está en el documento. No queremos inventiva. |
+| Generación de código | 0.1 – 0.3 | El código tiene que funcionar, no ser original. |
+| Resumen de textos | 0.3 – 0.5 | Algo de flexibilidad estilística, sin salirse del contenido. |
+| Redacción asistida, borradores | 0.5 – 0.7 | Variedad útil, sin perder coherencia. |
+| Brainstorming, variantes creativas | 0.7 – 1.0 | Buscamos diversidad, toleramos impredecibilidad. |
+
+Estos rangos son puntos de partida, no verdades absolutas. El valor óptimo depende del modelo concreto, del prompt y de lo que «correcto» signifique en tu caso. La forma de encontrarlo es empírica: crea un conjunto de casos de prueba representativos y mide qué temperatura produce los mejores resultados en ese conjunto.
+
+<Callout>
+  La temperatura no es el dial de «creatividad» — es el dial de «cuánto riesgo asumes». En producción, casi siempre querrás poco riesgo.
+</Callout>
