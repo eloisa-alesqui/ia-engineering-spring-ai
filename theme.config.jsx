@@ -27,6 +27,7 @@ export default {
     <>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <meta name="description" content="Guía práctica para integrar IA en aplicaciones Java con Spring AI" />
+      <link rel="icon" href="/images/logo.png" type="image/png" />
     </>
   ),
   sidebar: {
