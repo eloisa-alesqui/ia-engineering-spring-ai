@@ -1,7 +1,56 @@
 ---
-title: "2.6 — En construcción"
+title: "2.6 Cloud vs. local: el árbol de decisión para tu empresa"
 ---
 
-# 2.6
+import { Callout } from 'nextra/components'
+import DecisionTree from '../../../components/DecisionTree'
 
-> **En construcción.** Esta sección está siendo redactada.
+# 2.6 Cloud vs. local: el árbol de decisión para tu empresa
+
+La pregunta no es si usar IA en la nube o en local — es cuánto control necesitas sobre dónde se procesan tus datos y quién gestiona la infraestructura. En marzo de 2026 hay tres caminos, no dos, y el del medio es el que siguen la mayoría de empresas.
+
+## Los tres caminos
+
+**API pública directa**
+
+Llamas a la API del proveedor — OpenAI, Anthropic, Mistral La Plateforme, Google AI Studio — y recibes la respuesta. Es el camino más rápido: sin infraestructura, sin configuración, facturas por uso. Los datos viajan a los servidores del proveedor en cada llamada.
+
+Es la opción correcta cuando: el proyecto es interno, los datos no son sensibles, o el volumen es bajo y la velocidad de entrega importa más que el control.
+
+---
+
+**Modelo gestionado en tu nube** *(la opción más habitual en enterprise)*
+
+El modelo corre dentro de tu cuenta cloud — tu suscripción de Azure, tu cuenta AWS, tu proyecto GCP — en la región que eliges. Los datos no salen de tu entorno cloud. Los proveedores principales tienen sus equivalentes:
+
+- **Azure OpenAI Service**: acceso a los modelos de OpenAI (GPT-5.x, embeddings, etc.) desplegados en Azure. Los datos se procesan en la región de Azure que configures — incluidas regiones europeas. Para empresas que ya trabajan con Microsoft, el contrato enterprise cubre este servicio y el equipo legal ya conoce el marco.
+- **Google Vertex AI**: acceso a Gemini y a modelos de terceros — entre ellos Claude de Anthropic — dentro de tu cuenta GCP.
+- **AWS Bedrock**: acceso a modelos de Anthropic (Claude), Meta (Llama 4), Mistral y otros dentro de tu cuenta AWS.
+
+Esta vía resuelve el problema de privacidad sin obligarte a gestionar infraestructura propia. Es por eso que es el camino por defecto en la mayoría de proyectos enterprise: los datos quedan en tu entorno, el modelo lo opera el proveedor y el equipo jurídico ya tiene los marcos de cumplimiento firmados.
+
+<Callout type="info">
+  Si tu empresa ya tiene un acuerdo enterprise con Microsoft, AWS o Google, es muy probable que Azure OpenAI Service, Bedrock o Vertex AI sean la ruta de menor fricción para arrancar. El DPA ya está cubierto, los datos no salen de tu cuenta cloud y no necesitas aprovisionar ni mantener infraestructura de GPU.
+</Callout>
+
+---
+
+**Self-hosted completo**
+
+Descargas los pesos del modelo y lo ejecutas en tu propia infraestructura — servidores on-premise, una VM con GPU en tu cuenta cloud privada, o un entorno air-gapped. **Ollama** es la herramienta más usada para esto a marzo de 2026: permite ejecutar modelos como Llama 4 o Mistral con un comando, abstrae la gestión del runtime y expone una API compatible con la de OpenAI, lo que facilita la integración con el código existente.
+
+Es la opción correcta cuando: los datos no pueden salir de tu infraestructura bajo ningún concepto — datos de pacientes, información clasificada, exigencia contractual o regulatoria explícita — o cuando el volumen es tan elevado que el coste por token de cualquier proveedor externo resulta inasumible.
+
+<Callout type="warning">
+  Self-hosted no significa gratuito. Una GPU con capacidad suficiente para ejecutar un modelo de calidad razonable (A10G, A100 o equivalente) cuesta varios euros por hora en cloud, o una inversión inicial significativa en hardware propio. A eso se suma el tiempo de tu equipo para aprovisionar, actualizar y operar el servicio. Calcula el coste total antes de asumir que es más barato que una API.
+</Callout>
+
+## El árbol de decisión
+
+<DecisionTree />
+
+En la práctica, la mayoría de proyectos enterprise en Europa acaban en el camino del medio: modelo gestionado en su nube de referencia, con datos en región europea, y sin necesidad de gestionar infraestructura propia.
+
+<Callout>
+  El self-hosting da control total pero transfiere toda la responsabilidad operativa a tu equipo. La API pública es la más rápida pero la menos controlada. El modelo gestionado en tu nube es el equilibrio que funciona para la mayoría.
+</Callout>
