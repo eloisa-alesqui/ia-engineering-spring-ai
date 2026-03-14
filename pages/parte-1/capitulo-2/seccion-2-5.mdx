@@ -1,7 +1,114 @@
 ---
-title: "2.5 — En construcción"
+title: "2.5 Criterios de selección de modelo"
 ---
 
-# 2.5
+import { Callout } from 'nextra/components'
 
-> **En construcción.** Esta sección está siendo redactada.
+# 2.5 Criterios de selección de modelo: coste, latencia, calidad, privacidad, compliance
+
+Elegir un modelo no es buscar el mejor del ranking. Es encontrar el que encaja con los requisitos de tu sistema. Cinco criterios determinan esa elección: calidad, coste, latencia, privacidad y compliance. El error más habitual es evaluarlos en el orden equivocado — optimizar coste o calidad antes de saber si el modelo cumple los requisitos regulatorios que eliminan la mitad de las opciones.
+
+## Calidad: el benchmark que importa es el tuyo
+
+Existen rankings públicos que miden los modelos en tareas estandarizadas — razonamiento lógico, comprensión lectora, generación de código. Son útiles como referencia de orden de magnitud, pero no te dicen nada sobre cómo se comportará el modelo con tus datos, tu dominio y tus prompts.
+
+A marzo de 2026, el estado del arte es aproximadamente este:
+
+- **GPT-5 y Claude Opus 4.6** lideran en tareas de razonamiento complejo, seguimiento de instrucciones elaboradas y respuestas abiertas con múltiples restricciones.
+- **Llama 4 Maverick y modelos equivalentes open source** son competitivos en tareas bien delimitadas: clasificación, extracción, resumen, generación de código con contexto claro.
+- **Modelos más pequeños** (Llama 4 Scout, Mistral y similares) son suficientes para tareas simples y ofrecen una ventaja significativa en coste y latencia.
+
+Ninguno de estos datos te dice si el modelo es adecuado para tu caso específico. La única validación que cuenta es esta: coge un conjunto representativo de tus casos reales, define un criterio de éxito concreto y mide. Todo lo demás es especulación.
+
+<Callout type="warning">
+  Evaluar calidad con ejemplos inventados o demasiado simples es una de las causas más frecuentes de sorpresas en producción. Los modelos se comportan bien en condiciones ideales y degradan cuando llegan casos límite, lenguaje ambiguo o datos mal formados. Tu conjunto de evaluación tiene que incluir los casos difíciles, no solo los fáciles.
+</Callout>
+
+## Coste: la fórmula, no el precio
+
+Los precios por token cambian con cada nueva versión de modelo y cada renegociación de proveedor. Lo que no cambia es la fórmula:
+
+```
+coste_total = (tokens_entrada × precio_entrada + tokens_salida × precio_salida) × volumen_llamadas
+```
+
+Dos cosas que esta fórmula deja claras:
+
+**Los tokens de salida siempre son más caros que los de entrada.** En todos los proveedores, el precio por token de salida es significativamente mayor que el de entrada. Si tu sistema genera respuestas largas, el coste escala rápido. Controlar la longitud de las respuestas — con instrucciones explícitas en el prompt — es una de las palancas de optimización más directas.
+
+**El volumen lo cambia todo.** Un modelo que parece barato en desarrollo puede resultar inasumible a escala. Estima siempre el coste mensual con volumen real o proyectado antes de comprometerte con una arquitectura.
+
+Además del precio por token, hay costes que la fórmula no captura:
+
+- **Infraestructura**, si ejecutas un modelo open source en tus propios servidores.
+- **Reintentos y errores**, que duplican o triplican llamadas en sistemas mal diseñados.
+- **Evaluación y monitorización**, que tienen coste propio en tiempo y herramientas.
+- **Prompts largos**, que se pagan en cada llamada aunque el contenido no cambie.
+
+Si quieres un desglose completo de todas estas dimensiones — con escenarios reales y estimaciones de orden de magnitud — la sección 1.6 lo desarrolla en detalle.
+
+<Callout type="info">
+  El caching de prompts — reutilizar la parte fija del contexto entre llamadas — es una técnica de optimización de coste disponible en varios proveedores. Lo veremos en detalle en la Parte IV.
+</Callout>
+
+## Latencia: dos métricas distintas
+
+Latencia no es un número único. Hay dos métricas que importan, y cuál es relevante depende de cómo uses el modelo:
+
+**Time to First Token (TTFT)**: tiempo desde que envías la llamada hasta que el modelo empieza a generar la respuesta. Es lo que determina la percepción de velocidad en interfaces conversacionales. Con streaming — donde el texto aparece a medida que se genera — un TTFT de 300ms se percibe como inmediato aunque la respuesta completa tarde varios segundos.
+
+**Throughput** (tokens por segundo): velocidad de generación una vez que el modelo arranca. Es lo que determina el rendimiento en procesos batch — clasificar miles de documentos, procesar un pipeline nocturno, generar informes en volumen.
+
+Para la mayoría de aplicaciones enterprise, la combinación correcta es: streaming para interfaces de usuario (minimiza la percepción de espera) y procesamiento en paralelo para batch (maximiza el throughput total).
+
+Los modelos propietarios tienen latencia variable según la carga del proveedor. Los modelos self-hosted tienen latencia predecible, pero condicionada por tu hardware.
+
+## Privacidad: dónde van los datos
+
+Cuando llamas a la API de un modelo propietario, tus datos — el prompt, los documentos que incluyes en el contexto, los datos del usuario — viajan a los servidores del proveedor. La mayoría de los proveedores ofrecen un Data Processing Agreement (DPA) y garantizan que no usan esos datos para reentrenar el modelo, pero los datos salen de tu red.
+
+Para muchos proyectos esto es perfectamente aceptable. Para otros, es un bloqueante:
+
+- Datos de pacientes, historiales médicos o cualquier dato bajo regulación sanitaria.
+- Datos financieros sujetos a restricciones de localización.
+- Información confidencial de clientes o de la propia empresa cuya exposición implica riesgo legal o reputacional.
+
+Si los datos no pueden salir de tu infraestructura, las opciones son modelos open source self-hosted o proveedores que ofrezcan despliegue en tu propia nube — opción que algunos proveedores enterprise empiezan a ofrecer.
+
+Un apunte sobre Mistral en este contexto: además de publicar modelos open source que puedes ejecutar tú mismo, Mistral AI ofrece su propia API cloud — La Plateforme. Al ser una empresa francesa, los datos se procesan dentro de la UE. Con proveedores americanos como OpenAI o Anthropic, usar su API implica transferir datos fuera de Europa, lo que requiere trámites legales adicionales para cumplir con el GDPR. Con la API de Mistral, ese paso no es necesario. No elimina la revisión legal, pero la simplifica. Si además auto-hospedas sus modelos open source, los datos directamente no salen de tu infraestructura.
+
+## Compliance: los requisitos que eliminan opciones
+
+Compliance es el criterio más binario de todos. O el modelo y la arquitectura cumplen los requisitos regulatorios aplicables a tu proyecto, o no. No hay término medio.
+
+Los marcos regulatorios más relevantes a marzo de 2026 para equipos en Europa:
+
+**AI Act (UE)**: el primer marco legal integral sobre IA a nivel mundial. Entró en vigor en agosto de 2024 y se está aplicando por fases. Las prohibiciones de ciertos usos de IA y las obligaciones de AI literacy ya están en vigor desde febrero de 2025. El grueso de las obligaciones — incluidas las que afectan a sistemas de alto riesgo en decisiones sobre crédito, empleo o acceso a servicios esenciales — entra en aplicación en agosto de 2026. Si tu sistema cae en esa categoría, el modelo que uses y cómo lo uses forman parte del cumplimiento.
+
+**DORA**: en aplicación desde enero de 2025. Para entidades financieras en la UE, la Digital Operational Resilience Act impone requisitos sobre la gestión de proveedores tecnológicos críticos. Un modelo propietario externo puede ser un proveedor crítico bajo DORA — lo que implica obligaciones de documentación, monitorización y planes de contingencia.
+
+**Regulación sectorial**: sanidad, seguros y servicios financieros tienen marcos propios que condicionan qué datos pueden procesarse externamente y cómo deben documentarse las decisiones automatizadas.
+
+En cuanto a certificaciones de proveedores: tanto OpenAI como Anthropic cuentan con SOC 2 Type II e ISO 27001. Anthropic además tiene ISO 42001, el estándar específico para sistemas de gestión de IA. Pero atención: estas certificaciones no cubren todos los productos por igual. Por ejemplo, la SOC 2 de OpenAI cubre la API y los planes Enterprise, Team y Edu de ChatGPT, pero no los planes gratuito ni Plus. Verifica siempre que la certificación cubre la región y el servicio concreto que vas a usar.
+
+<Callout type="info">
+  **SOC 2 Type II**: auditoría independiente que certifica que una empresa gestiona los datos de sus clientes de forma segura. El Type II evalúa que los controles funcionan de forma continua durante un período de tiempo, no solo en un momento puntual. **ISO 27001**: estándar internacional para sistemas de gestión de la seguridad de la información. **ISO 42001**: el equivalente específico para sistemas de gestión de IA — gobierno, riesgo y ciclo de vida de los sistemas de inteligencia artificial.
+</Callout>
+
+## El orden correcto para evaluar
+
+Con cinco criterios encima de la mesa, el orden en que los aplicas determina cuánto tiempo pierdes en análisis que no llevan a ningún lado.
+
+| Paso | Criterio | Por qué primero |
+|---|---|---|
+| 1 | Compliance | Eliminatorio. Si el modelo no puede usarse legalmente, el resto no importa. |
+| 2 | Privacidad | Eliminatorio. Si los datos no pueden salir de tu red, filtra las opciones antes de evaluar nada más. |
+| 3 | Calidad | ¿El modelo cumple el mínimo para la tarea? Evalúa con tus datos reales. |
+| 4 | Latencia | ¿Cumple los requisitos de tiempo de respuesta de tu sistema? |
+| 5 | Coste | Entre los modelos que superan los filtros anteriores, ¿cuál es sostenible a tu volumen? |
+
+Este orden evita el error clásico: enamorarte de un modelo por su calidad en demos y descubrir después que no puede procesar los datos de tu empresa por restricciones legales.
+
+<Callout>
+  El mejor modelo para tu sistema no es el más capaz del mercado — es el que cumple tus requisitos de compliance y privacidad, rinde bien en tu tarea concreta y tiene un coste sostenible a tu escala.
+</Callout>
