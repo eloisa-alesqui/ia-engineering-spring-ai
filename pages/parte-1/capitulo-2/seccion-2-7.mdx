@@ -34,6 +34,10 @@ Ser agnóstico al proveedor no significa tratar todos los modelos como idéntico
 
 **Externaliza la configuración del modelo.** El nombre del modelo, la temperatura, el endpoint — todo eso debería vivir en configuración, no en el código. Un despliegue en producción y uno de prueba pueden apuntar a modelos distintos sin tocar una línea.
 
+<Callout type="info">
+  Esto es exactamente lo que resuelve Spring AI en la Parte II: sus abstracciones te permiten cambiar de proveedor modificando la configuración, sin tocar el código de tu aplicación. El principio de diseño viene primero; el framework que lo implementa, después.
+</Callout>
+
 ## Cuándo sí tiene sentido usar capacidades específicas de un proveedor
 
 El agnosticismo no es un absoluto. Algunos proveedores ofrecen capacidades que no tienen equivalente real en otros:
@@ -46,10 +50,6 @@ El agnosticismo no es un absoluto. Algunos proveedores ofrecen capacidades que n
 Este panorama es el de marzo de 2026 y cambiará — lo que hoy es exclusivo puede ser estándar en seis meses. Antes de comprometerte con una capacidad específica de un proveedor, verifica que sigue siendo un diferenciador real.
 
 Si una de estas capacidades aporta valor real y diferencial a tu sistema, úsala. Pero documenta la dependencia explícitamente — en el código, en la arquitectura, en el runbook — para que el día que necesites migrar, el coste sea visible y no una sorpresa.
-
-<Callout type="info">
-  Esto es exactamente lo que resuelve Spring AI en la Parte II: sus abstracciones te permiten cambiar de proveedor modificando la configuración, sin tocar el código de tu aplicación. El principio de diseño viene primero; el framework que lo implementa, después.
-</Callout>
 
 <Callout>
   El modelo que uses importa menos de lo que parece hoy. Lo que importa es que tu sistema no dependa de que sigas usando ese modelo mañana.
