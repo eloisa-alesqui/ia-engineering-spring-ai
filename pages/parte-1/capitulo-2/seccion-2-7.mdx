@@ -1,7 +1,56 @@
 ---
-title: "2.7 — En construcción"
+title: "2.7 El modelo como commodity: diseñar para ser agnóstico al proveedor"
 ---
 
-# 2.7
+import { Callout } from 'nextra/components'
 
-> **En construcción.** Esta sección está siendo redactada.
+# 2.7 El modelo como commodity: diseñar para ser agnóstico al proveedor
+
+Cuando GPT-4 se lanzó en 2023, no tenía competencia real. Quien quería calidad no tenía alternativa. Hoy el panorama es radicalmente distinto: Llama 4, Claude, Gemini y GPT-5 son intercambiables en la mayoría de tareas enterprise. Los precios convergen, la calidad se acerca y la diferenciación entre proveedores se estrecha con cada nueva versión.
+
+Los modelos están siguiendo el mismo camino que otras capas de infraestructura: se están convirtiendo en commodities. Y cuando una pieza de infraestructura se convierte en commodity, atarse a un proveedor concreto deja de ser una decisión técnica y se convierte en un riesgo.
+
+## Los riesgos del lock-in
+
+Diseñar un sistema acoplado a un proveedor específico te expone a varios escenarios incómodos:
+
+**El proveedor cambia los precios.** Ha ocurrido y volverá a ocurrir. Un ajuste de pricing puede convertir un sistema rentable en uno inasumible de un mes para otro.
+
+**El modelo se depreca.** Los proveedores retiran versiones antiguas con plazos de migración que a veces son más cortos de lo que dura un ciclo de desarrollo. GPT-3.5, GPT-4, Claude 2 — todos han pasado o están pasando por ese proceso.
+
+**Aparece un requisito de compliance.** Como vimos en 2.5, un cambio regulatorio o contractual puede descartarte un proveedor de un día para otro. Si el código está fuertemente acoplado, la migración es un proyecto, no un cambio de configuración.
+
+**Surge un modelo mejor para tu caso de uso.** La velocidad de evolución del sector garantiza que el modelo óptimo de hoy no será el de dentro de un año. Si cambiar de modelo implica reescribir el sistema, perderás esa ventaja antes de poder aprovecharla.
+
+## Qué significa diseñar para ser agnóstico en la práctica
+
+Ser agnóstico al proveedor no significa tratar todos los modelos como idénticos — no lo son. Significa no acoplar innecesariamente tu sistema a las particularidades de uno.
+
+**Abstrae la llamada al modelo detrás de una interfaz.** Tu lógica de negocio no debería saber si está hablando con GPT-5 o con Llama 4. Debería hablar con una abstracción que encapsula ese detalle. Cambiar de modelo debería ser un cambio de configuración, no de código.
+
+**No dependas de quirks específicos del proveedor en tus prompts.** Algunos comportamientos son idiosincráticos — cómo un modelo concreto responde a ciertas formulaciones, qué formato prefiere para el JSON, cómo interpreta el rol de system. Si tus prompts explotan esas particularidades, son prompts frágiles: funcionan con un modelo y se degradan con otro.
+
+**Testa con más de un modelo.** Si tu conjunto de evaluación solo ha visto respuestas de un proveedor, no sabes si tu sistema funciona o si simplemente está optimizado para ese proveedor. Ejecutar las mismas pruebas contra dos modelos distintos revela dependencias ocultas.
+
+**Externaliza la configuración del modelo.** El nombre del modelo, la temperatura, el endpoint — todo eso debería vivir en configuración, no en el código. Un despliegue en producción y uno de prueba pueden apuntar a modelos distintos sin tocar una línea.
+
+## Cuándo sí tiene sentido usar capacidades específicas de un proveedor
+
+El agnosticismo no es un absoluto. Algunos proveedores ofrecen capacidades que no tienen equivalente real en otros:
+
+- **Extended Thinking (Anthropic)**: Claude expone su razonamiento interno como bloques estructurados en la respuesta de la API. Si tu sistema los parsea, los loguea o toma decisiones basándose en ellos, estás acoplado a Claude. Ningún otro proveedor expone el razonamiento de esta forma.
+- **Grounding con Google Search (Gemini)**: la única API donde la búsqueda en tiempo real ocurre dentro del propio proceso de generación, no como una llamada externa a una herramienta. El diferenciador real es que Google es dueño del índice — ningún otro proveedor puede replicarlo.
+- **Reinforcement Fine-Tuning (OpenAI)**: permite entrenar un modelo de razonamiento con tu propio criterio de éxito vía API, sin necesidad de datos etiquetados. El modelo resultante no puede exportarse — si lo entrenas, te quedas en OpenAI.
+- **Ventanas de contexto extremas** (Llama 4 Scout, Gemini): casos de uso donde procesar millones de tokens en una sola llamada cambia la arquitectura del sistema.
+
+Este panorama es el de marzo de 2026 y cambiará — lo que hoy es exclusivo puede ser estándar en seis meses. Antes de comprometerte con una capacidad específica de un proveedor, verifica que sigue siendo un diferenciador real.
+
+Si una de estas capacidades aporta valor real y diferencial a tu sistema, úsala. Pero documenta la dependencia explícitamente — en el código, en la arquitectura, en el runbook — para que el día que necesites migrar, el coste sea visible y no una sorpresa.
+
+<Callout type="info">
+  Esto es exactamente lo que resuelve Spring AI en la Parte II: sus abstracciones te permiten cambiar de proveedor modificando la configuración, sin tocar el código de tu aplicación. El principio de diseño viene primero; el framework que lo implementa, después.
+</Callout>
+
+<Callout>
+  El modelo que uses importa menos de lo que parece hoy. Lo que importa es que tu sistema no dependa de que sigas usando ese modelo mañana.
+</Callout>
