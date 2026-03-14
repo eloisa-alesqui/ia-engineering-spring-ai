@@ -1,5 +1,25 @@
 ---
-title: "En construcción"
+title: "Resumen del capítulo"
 ---
 
-> **En construcción.**
+# Resumen del capítulo 2
+
+Las ideas clave que deberías llevarte de este capítulo:
+
+- **Un LLM predice continuaciones probables — no razona, no busca, no sabe.** Dado un texto de entrada, genera el texto más probable que debería venir a continuación. La alucinación no es un bug que se corregirá en la próxima versión: es una consecuencia estructural de cómo funcionan los modelos.
+
+- **El token es la unidad de todo en los LLMs:** de lo que procesan, de lo que cobran y de los límites que imponen. Como referencia práctica, 1.000 tokens equivalen a unas 750 palabras en inglés. En español, el mismo contenido consume entre un 10% y un 20% más de tokens.
+
+- **La ventana de contexto es la mesa de trabajo del modelo.** Solo puede trabajar con lo que tiene encima: system prompt, historial, documentos recuperados, mensaje del usuario y respuesta. Todo comparte ese espacio. En sistemas RAG, la estrategia de qué fragmentos incluir importa más que el tamaño de la ventana.
+
+- **La temperatura controla el riesgo, no la creatividad.** En producción, casi siempre querrás temperatura baja — para clasificación, extracción y código. Temperatura alta solo cuando la variedad es el objetivo. Y ten en cuenta que temperatura 0 no garantiza determinismo absoluto: si necesitas reproducibilidad estricta, combínala con el parámetro `seed`. Top-p es un mecanismo alternativo; ajusta solo uno de los dos.
+
+- **La brecha de calidad entre modelos propietarios y open source se ha cerrado para tareas bien definidas.** Lo que decide hoy es el coste, la privacidad y el control. «Open source» no significa licencia libre: las restricciones varían por modelo y algunas son relevantes en contextos enterprise.
+
+- **El orden correcto para evaluar modelos es: compliance → privacidad → calidad → latencia → coste.** Optimizar calidad o precio antes de verificar si el modelo puede procesar tus datos legalmente es el error más frecuente — y el más caro.
+
+- **En latencia importan dos métricas distintas.** Time to First Token determina la percepción de velocidad en interfaces conversacionales. Throughput determina el rendimiento en procesos batch. Son problemas diferentes con soluciones diferentes.
+
+- **La opción por defecto en enterprise europeo es el modelo gestionado en tu nube de referencia.** Los datos no salen de tu entorno, el proveedor opera el modelo y el equipo legal ya tiene los marcos de cumplimiento firmados. Self-hosted da más control pero transfiere toda la responsabilidad operativa a tu equipo.
+
+- **Diseña tu sistema para ser agnóstico al proveedor.** Abstrae la llamada al modelo detrás de una interfaz, externaliza la configuración y no dependas de comportamientos idiosincráticos de un proveedor concreto. Cambiar de modelo debería ser un cambio de configuración, no de código.
