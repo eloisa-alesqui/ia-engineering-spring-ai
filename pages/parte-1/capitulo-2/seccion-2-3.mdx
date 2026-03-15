@@ -3,6 +3,7 @@ title: "2.3 Temperatura y top-p: los parámetros que controlas"
 ---
 
 import { Callout } from 'nextra/components'
+import TemperaturaViz from '../../../components/TemperaturaViz'
 
 # 2.3 Temperatura y top-p: los parámetros que controlas
 
@@ -58,6 +59,12 @@ Existe un tercer parámetro, **top-k**, que acota el número absoluto de tokens 
 | Brainstorming, variantes creativas | 0.7 – 1.0 | Buscamos diversidad, toleramos impredecibilidad. |
 
 Estos rangos son puntos de partida, no verdades absolutas. El valor óptimo depende del modelo concreto, del prompt y de lo que «correcto» signifique en tu caso. La forma de encontrarlo es empírica: crea un conjunto de casos de prueba representativos y mide qué temperatura produce los mejores resultados en ese conjunto.
+
+## Pruébalo
+
+Selecciona un escenario o ajusta los sliders para ver cómo cambia la distribución de probabilidad y qué tokens se muestrean en cada ejecución:
+
+<TemperaturaViz />
 
 <Callout>
   La temperatura no es el dial de «creatividad» — es el dial de «cuánto riesgo asumes». En producción, casi siempre querrás poco riesgo.
